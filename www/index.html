@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<script type="text/javascript" src="cordova.js"></script>
+			<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+			<title>NubePOS V2.0</title>
+			<link rel="shortcut icon" href="favicon.ico">
+			<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">
+			<script src="js/jquery.js"></script>
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+			<script src="js/jquery-ui.min.js"></script>
+			<link rel="stylesheet" href="css/bootstrap.min.css">
+			<script src="js/index.js"></script>
+			<script src="js/homeScripts.js"></script>
+			<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+			<script src="js/raphael-min.js"></script>
+			<script src="js/morris.min.js"></script>
+			<script src="js/bootstrap.min.js"></script>	
+			<link href="css/fonts.css" rel="stylesheet" type="text/css">
+			<link href="css/formated.css" rel="stylesheet" type="text/css">
+			<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
+			<link rel="stylesheet" href="bower_components/weather-icons/css/weather-icons.min.css">
+			<link rel="stylesheet" href="css/estilotemp.css">
+			<script type="text/javascript" src="js/jsapi"></script>
+			<style>
+				.nav-glyphish-example .ui-btn { padding-top: 40px !important; }
+				.nav-glyphish-example .ui-btn:after { width: 30px!important; height: 30px!important; margin-left: -15px !important; box-shadow: none!important; -moz-box-shadow: none!important; -webkit-box-shadow: none!important; -webkit-border-radius: 0 !important; border-radius: 0 !important; }
+				#chat:after { background:  url("../_assets/img/glyphish-icons/09-chat2.png") 50% 50% no-repeat; background-size: 24px 22px; }
+				#email:after { background:  url("../_assets/img/glyphish-icons/18-envelope.png") 50% 50% no-repeat; background-size: 24px 16px;  }
+				#login:after { background:  url("../_assets/img/glyphish-icons/30-key.png") 50% 50% no-repeat;  background-size: 12px 26px; }
+				#beer:after { background:  url("../_assets/img/glyphish-icons/88-beermug.png") 50% 50% no-repeat;  background-size: 22px 27px; }
+				#coffee:after { background:  url("../_assets/img/glyphish-icons/100-coffee.png") 50% 50% no-repeat;  background-size: 20px 24px; }
+				#skull:after { background:  url("../_assets/img/glyphish-icons/21-skull.png") 50% 50% no-repeat;  background-size: 22px 24px; }
+				#cont_escalable { display:block; }
+				.col-sm-offset-1{
+						margin:0px;
+				}
+				#myDash {
+					bottom: 0;
+					display: none;
+					left: 0;
+					outline: 0 none;
+					overflow-y:scroll;
+					overflow-x:none;
+					position: fixed;
+					right: 0;
+					top: 0;
+					z-index: 20000;
+					background-color: rgba(255, 255, 255, 0.8);
+				}
+				.infoDash{
+					border:3px solid #1EA076;
+					-webkit-border-top-left-radius: 10px;
+					-webkit-border-bottom-right-radius: 10px;
+					-moz-border-radius-topleft: 10px;
+					-moz-border-radius-bottomright: 10px;
+					border-top-left-radius: 10px;
+					border-bottom-right-radius: 10px;
+					min-height:170px !important;
+					padding:0px !important;
+					margin:0px !important;
+				}
+			</style>
+		</head>
+		<body>
+			<div id="fadeCloud" style="display:none;width:100%;height:100%;position:absolute;left:0px;top:0px;background:rgba(255,255,255,0.7);z-index:90000;"></div>
+			<nav class="navbar navbar-inverse" style='position:fixed;width:100%;top:-3px;left:0px;z-index:20000;'>
+			  <div class="container-fluid">
+				<div class="navbar-header">
+				  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				  </button>
+				  <a class="navbar-brand" href="#"><img src="img/logo1.png" width='100px'/></a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li onclick="envia('dashboard')"><a href="javascript:void(0);"><span style='display:inline;' class='fa fa-line-chart'></span>&nbsp;Resúmen<span class="sr-only">(current)</span></a></li>
+						<li onclick="envia('puntodeventa')"><a href="javascript:void(0);"><span style='display:inline;' class='fa fa-shopping-cart'></span>&nbsp;Ventas<span class="sr-only">(current)</span></a></li>
+						<li onclick="envia('historial')" role="presentation"><a href="javascript:void(0);"><span style='display:inline;' class='fa fa-money'></span>&nbsp;Historial</a></li>
+						<li onclick="envia('listaproductos')" id='productosIndex'><a href="javascript:void(0);"><span style='display:inline;' class='fa fa-list-alt'></span>&nbsp;Productos</a></li>
+						<li onclick="envia('cloud')" id='cloudIndex'><a href="javascript:void(0);"><span style='display:inline;' class='fa fa-cloud'></span>&nbsp;Cloud</a></li>
+						<!--<li onclick="envia('listadeclientes')" id='cloudIndex'><a href="javascript:void(0);"><span style='display:inline;' class='fa fa-cloud'></span>&nbsp;pruebas</a></li>-->
+						<li id='cloudIndexOff' style='display:none;'><a href="javascript:void(0);" style='color:#2EC1CC;'><span style='display:inline;color:#2EC1CC;' class='fa fa-times'></span>&nbsp;Cloud<br></a></li>
+					</ul>
+				  <ul class="nav navbar-nav navbar-right">
+					<li class="dropdown">
+					  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style='display:inline;' class='fa fa-cog'></span>&nbsp;Config <span class="caret"></span></a>
+					  <ul class="dropdown-menu">
+					   <!--<li><a href="centvia://?udn=Impresion&utt=NubePOS&cru=nubeposv%3a%2f%2f&cruf=nubeposv%3a%2f%2f&c_=!+0+200+200+540+1%0d%0aTEXT+4+0+20+10+Prueba+de+Impresion%0d%0aTEXT+7+0+20+60+NubePOS%0d%0aENDML%0d%0aCONCAT+250+300%0d%0aENDCONCAT%0d%0a%0d%0aPRINT%0d%0a" target="_blank"><span style='display:inline;' class='glyphicon glyphicon-print'></span>&nbsp;Config</a></li>-->
+					   <li onclick="ImprimirTest();"><a href="javascript:void(0);"><span style='display:inline;' class='glyphicon glyphicon-print'></span>&nbsp;Test</a></li>
+					   <li onclick='envia("empresa");'><a href="javascript:void(0);"><span style='display:inline;' class='glyphicon glyphicon-user'></span>&nbsp;Empresa</a></li>
+					   <li onclick="envia('imprimeotro');" ><a href="javascript:void(0);"><span style='display:inline;' class='glyphicon glyphicon-user'></span>&nbsp;V</a></li>
+					  </ul>
+					</li>
+				  </ul>
+				</div>
+			  </div>
+			</nav><br/><br/>
+			<div class='container-fluid'>
+				<div class="alert alert-success" role="alert" id='alert' style='display:none;'></div>
+				<div class='row'>
+					<div class='col-lg-12 col-md-12 col-sm-12 ui-mobile'>
+						<div class="row">
+							<div class="col-lg-12">
+								<div id="main" Align="center" style="width:100%;"></div>	
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="jsonformaspago" style="display: none;">{"FormaPago":[{"id":"1","nombre":"Efectivo","imagen":"Efectivo"},{"id":"2","nombre":"Tarjetas","imagen":"Tarjetas"},{"id":"3","nombre":"Cheques","imagen":"Bancos"},{"id":"4","nombre":"CxC","imagen":"CxC"}]}</div>
+				<div id="jsontarjetas" style="display: none;">{"Tarjetas":[{"id":"1","nombre":"Visa","imagen":"Tarjetas"},{"id":"2","nombre":"Mastercard","imagen":"Tarjetas"},{"id":"3","nombre":"Discover","imagen":"Bancos"},{"id":"4","nombre":"Dinners","imagen":"CxC"},{"id":"5","nombre":"Amex","imagen":"CxC"}]}</div>
+			</div>
+			<div class="modal-backdrop fade in" id='cargandoTabs' style='z-index:1000;display:none;'>
+				<table width='100%' height='100%'>
+					<tr>
+						<td valign='middle' align='center'> 
+							<img src='images/loader.gif' style='width:200px;'/>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</body>
+		<div id="status" style='display:none;'>
+			<p id="state"/>
+			<div id='log'><input type='hidden' id='conexion' value=''/></div>
+		</div>
+				
+		<div style="overflow:hidden;position:absolute;left:0px;top:0px;width:100%;height:100%;background:rgba(40,40,41,1);z-index:9000;display:block;" id="fade">
+			<table width="100%" height="100%" cellpadding="0" cellspacing="0" >
+				<tr>
+					<td valign="center" align="center" >
+						<div id="contentCenterFadeArea">
+							<img src="" id="logo" style="display:none;"><BR/>
+							<img src='images/loader.gif' width='30px'/>
+							<br/><label style="color:white;" id="putText">Inicializando...</label>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div  id="myDash" class='panel-default'>
+			<div class='row'>
+				<div class='col-xs-12' style='min-height:35px;'></div>
+			</div>
+			<div class='row'>
+				<div class='col-xs-2'></div>
+				<div class='col-xs-3 infoDash'>
+					<div style="margin:2px; font-family:Roboto; font-size:13px;" class="panel panel-default" id="producto">
+						<div style="text-align:center;" class="panel-body">
+							<div style="font-size:13px;background-color:#EBEBEB;padding-top:10px;padding-bottom:10px;">
+								<span style='display:inline;' class='fa fa-line-chart'></span>&nbsp;Resúmen<span class="sr-only">(current)</span>
+							</div><br/>
+							<div style="color:#000;font-size:15px;text-align:left;">
+								En esta seccion puedes visualizar la informacion detallada de tu negocio.
+							</div><br>
+							<div class="row">
+								<div class="col-xs-6">
+									<span class="boton-rojo">He leido.</span>
+								</div>
+								<div class="col-xs-6" style="text-align:right;">
+									<input type="checkbox" id='dash' class='saberCheck'/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class='col-xs-2'></div>
+				<div class='col-xs-3 infoDash'>
+					<div style="margin:2px; font-family:Roboto; font-size:13px;" class="panel panel-default" id="producto">
+						<div style="text-align:center;" class="panel-body">
+							<div style="font-size:13px;background-color:#EBEBEB;padding-top:10px;padding-bottom:10px;">
+								<span style='display:inline;' class='fa fa-shopping-cart'></span>&nbsp;Ventas<span class="sr-only">(current)</span>
+							</div><br/>
+							<div style="color:#000;font-size:15px;text-align:left;">
+								En esta seccion puedes facturar los productos ingresados en tu NubePOS.
+							</div><br>
+							<div class="row">
+								<div class="col-xs-6">
+									<span class="boton-rojo">He leido.</span>
+								</div>
+								<div class="col-xs-6" style="text-align:right;">
+									<input type="checkbox" id='vent'  class='saberCheck'/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class='col-xs-2'></div>
+			</div>
+			<div class='row'>
+				<div class='col-xs-12' style='min-height:25px;'></div>
+			</div>
+			<div class='row'>
+				<div class='col-xs-2'></div>
+				<div class='col-xs-3 infoDash'>
+					<div style="text-align:center;" class="panel-body">
+						<div style="font-size:13px;background-color:#EBEBEB;padding-top:10px;padding-bottom:10px;">
+							<span style='display:inline;' class='fa fa-money'></span>&nbsp;Historial
+						</div><br/>
+						<div style="color:#000;font-size:15px;text-align:left;">
+							En esta seccion puedes visualizar las facturas emitidas de tu negocio.
+						</div><br>
+						<div class="row">
+							<div class="col-xs-6">
+								<span class="boton-rojo">He leido.</span>
+							</div>
+							<div class="col-xs-6" style="text-align:right;">
+								<input type="checkbox" id='his' class='saberCheck'/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class='col-xs-2'></div>
+				<div class='col-xs-3 infoDash'>
+					<div style="text-align:center;" class="panel-body">
+						<div style="font-size:13px;background-color:#EBEBEB;padding-top:10px;padding-bottom:10px;">
+							<span style='display:inline;' class='fa fa-list-alt'></span>&nbsp;Productos
+						</div><br/>
+						<div style="color:#000;font-size:15px;text-align:left;">
+							En esta seccion puedes crear modificar eliminar todos los productos que estan ingresados
+						</div><br>
+						<div class="row">
+							<div class="col-xs-6">
+								<span class="boton-rojo">He leido.</span>
+							</div>
+							<div class="col-xs-6" style="text-align:right;">
+								<input type="checkbox" id='prod' class='saberCheck'/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class='col-xs-2'></div>
+			</div>
+			<div class='row'>
+				<div class='col-xs-12' style='min-height:25px;'></div>
+			</div>
+			<div class='row'>
+				<div class='col-xs-2'></div>
+				<div class='col-xs-3 infoDash'>
+					<div style="text-align:center;" class="panel-body">
+						<div style="font-size:13px;background-color:#EBEBEB;padding-top:10px;padding-bottom:10px;">
+							<span style='display:inline;' class='fa fa-cloud'></span>&nbsp;Cloud
+						</div><br/>
+						<div style="color:#000;font-size:15px;text-align:left;">
+							En esta seccion puedes conectarte a tu cuenta NubePOS en la Web.
+						</div><br>
+						<div class="row">
+							<div class="col-xs-6">
+								<span class="boton-rojo">He leido.</span>
+							</div>
+							<div class="col-xs-6" style="text-align:right;">
+								<input type="checkbox" id='clou' class='saberCheck'/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class='col-xs-2'></div>
+				<div class='col-xs-3 infoDash'>
+					<div style="text-align:center;" class="panel-body">
+						<div style="font-size:13px;background-color:#EBEBEB;padding-top:10px;padding-bottom:10px;">
+							<span style='display:inline;' class='fa fa-cog'></span>&nbsp;Config <span class="caret"></span>
+						</div><br/>
+						<div style="color:#000;font-size:15px;text-align:left;">
+							En esta seccion puedes modificar la informacionreservada para tu negocio
+						</div><br>
+						<div class="row">
+							<div class="col-xs-6">
+								<span class="boton-rojo">He leido.</span>
+							</div>
+							<div class="col-xs-6" style="text-align:right;">
+								<input type="checkbox" id='conf' class='saberCheck' />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class='col-xs-2'>
+					
+				</div>
+			</div>
+			<div class='row'>
+				<div class='col-xs-12'>
+					<center>
+						<button type="button" class="btn btn-primary" onclick='final()'>Terminar</button>
+					</center>
+				</div>
+			</div>
+		</div>
+		<div style='display:none;' id='jsonprint'>{"Pagar": [{ "cliente": {"id_cliente": "1","cedula": "9999999999999","nombre": "Consumidor Final","telefono": "","tipoCliente": "undefined","direccion": "","listaDePrecio": ""},"producto": [{"id_producto" : "14480627098694675","nombre_producto" : "AGUA SIN GAS BOTELLA","cant_prod" : "1","precio_orig" : "0.8929","precio_prod" : "0.8929","impuesto_prod" : "0.12","precio_total" : "1.000048","precio_descuento_justificacion" : ""},{"id_producto" : "14480627106975577","nombre_producto" : "MILLER DESECHABLE","cant_prod" : "1","precio_orig" : "1.4","precio_prod" : "1.4","impuesto_prod" : "0.12","precio_total" : "1.5679999999999998","precio_descuento_justificacion" : ""},{"id_producto" : "14480627172955859","nombre_producto" : "FUZE TEA NEGRO","cant_prod" : "1","precio_orig" : "1.5625","precio_prod" : "1.5625","impuesto_prod" : "0.12","precio_total" : "1.75","precio_descuento_justificacion" : ""},{"id_producto" : "14480627181535305","nombre_producto" : "COPA DE VINO MERLOT","cant_prod" : "1","precio_orig" : "2.2321","precio_prod" : "2.2321","impuesto_prod" : "0.12","precio_total" : "2.499952","precio_descuento_justificacion" : ""}],"factura" : {"subtotal_sin_iva" : "0","subtotal_iva" : "6.0875","impuestos" : "IVA/0.7304999999999999/1/0.12","descuento" : "0","total" : "6.82","numerofact":"001-001-000000002"},"empresa":{"nombre":"Nube POS","direccion":"Av. Nube 5897"}}]}</div>
+		<script type="text/javascript" src="barcodescanner.js"></script>
+		<script type="text/javascript" src="js/jsscan.js"></script>
+		<script type="text/javascript" src="js/jsscanprod.js"></script>
+		<script src="js/hammer.js" ></script>
+		<link href="slide/bootstrap-switch.css" rel="stylesheet">
+		<script src="slide/bootstrap-switch.js"></script>
+		<link href="slide/bootstrap-switch.css" rel="stylesheet">
+		<script src="slide/highlight.js"></script>
+		<script>
+			function final(){
+				
+				if($("#dash").is(':checked') && $("#vent").is(':checked') && $("#his").is(':checked') && $("#prod").is(':checked') && $("#clou").is(':checked') && $("#conf").is(':checked')) {  
+					//alert("Está activado");  
+					$('#myDash').fadeOut('slow');
+					setTimeout(function() {
+						envia('listaproductos')
+					}, 1500);
+				} else {  
+					alert('debes leer todas las instrucciones y marcar su check correspondiente');
+				}  
+			}
+			google.load("visualization", "1", {packages:["corechart"]});
+			startAnimation();
+			var timerFade;
+			function startAnimation(){
+				$("#logo").load(function() {
+					$("#logo").fadeIn("slow");
+					timerFade=setTimeout(function(){
+						$("#fade").animate({  top: "-100%", display : "none"  } , 1500 , "easeOutQuint" , function(){
+						
+								$("#contentCenterFadeArea").html('');
+						});
+					},3000);
+					
+				}).attr('src', 'img/logo.png');
+			}
+			
+			document.addEventListener("deviceready", function(){
+				var uuid = device.uuid;
+				id_barra=uuid;
+			});
+			$( document ).ready(function() {
+				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				db.transaction(function(tx){
+					tx.executeSql('SELECT * FROM PRODUCTOS WHERE id_local !=-1 and estado=1;',[],function(tx,resulta){
+						if(resulta.rows.length==0){
+							setTimeout(function() {
+								$('#myDash').fadeIn('slow');
+							}, 3300);
+						}else{
+							$('#myDash').css('display','none');
+						}
+					},errorCB,successCB);
+				});
+			});
+			
+			function ImprimirTest(){
+				var datapr=$('#jsonprint').html();
+				StarIOAdapter.rawprint(datapr, "BT:", function() {
+					alert("printed");
+				});
+			}
+		</script>
+	</html>
