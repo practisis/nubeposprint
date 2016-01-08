@@ -57,6 +57,7 @@ function validateToken(){
     		  $('#bloqueo').fadeIn();
               $("#fadeRow").fadeOut();
     		}else{
+			  //cuenta con licencia activa
     		  $('.navbar').fadeIn('fast');
     		  $("#fadeRow").fadeOut();
     			 $("#contentStepSincro").fadeIn();
@@ -116,12 +117,9 @@ var globalContProductosLocal=-1;
 
 
 	function saberIdBarraLocal(){
-
-		
-
-
-
+	
 	}
+	
 	function saberIdBarra(jsonProductos){
 		obj=$.parseJSON(jsonProductos);
 		idBarraSync= obj.Productos[0].id_barra;
@@ -577,6 +575,7 @@ var globalContProductosLocal=-1;
 						}).done(function(response){
 
 							if(yaConectado){
+								//sincronizacion recurrente
 								console.log(response);
 								
 
@@ -625,6 +624,7 @@ var globalContProductosLocal=-1;
 								 	
 
 							}else{
+								//sincronizacion inicial
 								var arraydatos=JSON.parse(response); 
 								console.log(">>>>Iniciar >>>"+response);
 								JSONproductosNube=arraydatos.productos;
@@ -634,7 +634,7 @@ var globalContProductosLocal=-1;
 								$("#JSONclientesNube").html(JSONclientesNube);
 								$("#JSONCategoriasNube").html(JSONcategoriasNube);
 								$("#JSONproductosNube").html(JSONproductosNube);
-								saberIdBarra(JSONproductosNube);
+								saberIdBarra(JSONproductosNube); //cambiar para mandar aparte no en productos
 								$("#JSONproductosLocal").html('');
 								JSONproductosLocal='{ "Productos" : [';
 								$("#JSONproductosLocal").append(JSONproductosLocal);
@@ -1067,7 +1067,7 @@ function localCategoriaID(categoriaid){
 					return;
 				}
 				
-			if(!objFactura){
+			/*if(!objFactura){
 				$('#theProgress').width("50%");
 				$("#txtSincro").html('<i>(1/2) Sincronizando Facturas</i>');
 				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
@@ -1119,7 +1119,7 @@ function localCategoriaID(categoriaid){
 									sincronizarFacturas();
 								});
 				
-			}
+			}*/
 
 			
 					
@@ -1223,11 +1223,12 @@ function localCategoriaID(categoriaid){
 		 for(j=0; j<= (objLocal.JsonClientes.length-1); j++){
 			element=objLocal.JsonClientes[j];
 			currentClientLocal=element.timespan;
-			currentClientLocal.cedula
-			if(currentClientLocal.cedula == '9999999999999'){
+			currentClientLocal.cedula;
+			
+			/*if(currentClientLocal.cedula == '9999999999999'){
 				
 				currentClientLocal=-1	;
-			} 
+			}*/
 
 			var matchClient=false;
 			var  matchClientCedula=false;
