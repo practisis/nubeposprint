@@ -1,0 +1,117 @@
+<div class='row'>
+	<div class='col-lg-12'>
+		<div class='panel panel-default'>
+			<h3>Configuración de Impresoras</h3>
+			<div class='panel-body'>
+				<div class='col-lg-12' style='text-align:right;'>
+				 <button type='button' onclick='BuscarImpresoras();' class='btn btn-success'>Buscar Impresoras</button></div>
+				<div class='col-lg-12' style='padding:20px;'>
+				<table class='table table-striped' id='listaimpresoras'>
+					<thead>
+					<tr><th>Nombre</th><th>Elegir</th></tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+				<div class='col-lg-12' style='text-align:right;'>
+					<button id='btnsetear' class='btn btn-success' style='display:none;' onclick='SetearImpresora();'>Elegir</button>
+					<button id='btnprobar' class='btn btn-success' style='display:none;' onclick='ImprimirTest();'>Imprimir Prueba</button>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>	
+	BuscarImpresoras();
+	function BuscarImpresoras(){
+		//alert("hola impresora");
+		$('#listaimpresoras tbody').html('');
+		StarIOAdapter.searchall("USB:", function(dataprint){
+			//alert(res);
+			var res=dataprint.split('@');
+			var linea="<tr><td>"+res[1]+"</td><td><input class='printerradio' data-value='"+res[0]+"' type='radio' name='printer' value='"+res[0]+"' checked id='print_"+res[0]+"'/></td></tr>";
+			$('#listaimpresoras tbody').append(linea);
+			if($('#listaimpresoras tbody').html()!=''){
+					$('#btnsetear,#btnprobar').fadeIn();
+					var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+					db.transaction(function(tx){
+						tx.executeSql("SELECT printer FROM CONFIG where id=1",[],function(tx,results){
+							console.log(results);
+							var idprinter='';
+							if(results.rows.length>0){
+								var idprinter=results.rows.item(0);
+								if(idprinter.printer!=''){
+									$('#print_'+idprinter.printer).click();
+								}
+							}
+						});},errorCB,successCB);
+			}else
+				$('#btnsetear,#btnprobar').css("display","none");
+		}, function(error) {
+			alert("Ocurrió un problema: " + error);
+		});	
+	}
+	
+	function SetearImpresora(){
+		var laprinter='';
+		laprinter=$('input:radio[name=printer]:checked').val();
+		//alert($('input:radio[name=printer]:checked').val());
+		/*$('.printerradio').each(function(){
+			if($(this).is(":checked")){
+				laprinter=$(this).attr("data-value");
+				break;
+			}
+		});*/
+		
+		//alert("Ana"+laprinter);
+		if(laprinter!=''){
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			var cuantos=0;
+			db.transaction(function(tx1){
+				tx1.executeSql("SELECT printer from CONFIG where id=1",[],
+				function(tx1,results1){
+					if(results1.rows.length>0)
+						{cuantos=1;}
+				});}
+			,errorCB,successCB);
+				
+			if(cuantos==1){
+				db.transaction(function(tx){
+					tx.executeSql("UPDATE CONFIG SET printer=?",[laprinter],function(tx,results){
+						//console.log(results);
+						//alert(laprinter);
+						showalert("Se ha vinculado la impresora: "+laprinter);
+					});},errorCB,successCB);
+			}else{
+				db.transaction(function(tx3){
+					tx3.executeSql("INSERT INTO CONFIG (printer) VALUES (?)",[laprinter],function(tx3,results3){
+						//console.log(results3);
+						//alert(laprinter);
+						showalert("Se ha vinculado la impresora: "+laprinter);
+				});},errorCB,successCB);
+			}
+		}
+	}
+	
+	function ImprimirTest(){
+		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+		db.transaction(function(tx){
+			tx.executeSql("SELECT printer FROM CONFIG where id=1",[],function(tx,results){
+			console.log(results);
+			var idprinter='';
+			if(results.rows.length>0){
+				var idprinter=results.rows.item(0);
+				if(idprinter.printer!=''){
+					var datapr=$('#jsonprint').html();
+					StarIOAdapter.rawprint(datapr,idprinter.printer.toString(), function() {
+						//StarIOAdapter.rawprint(datapr,"USB:SN:12345678", function() {
+						showalert("Imprimiendo test");
+					});
+				}else{
+					showalert("No se ha configurado una impresora.");
+				}
+			}
+		});},errorCB,successCB);
+	}
+</script>

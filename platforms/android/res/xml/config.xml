@@ -8,7 +8,9 @@
     <feature name="StarIOAdapter">
         <param name="android-package" value="com.uforge.plugins.StarIOAdapter" />
     </feature>
-    <allow-intent href="market:*" />
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
     <name>cloudprint2</name>
     <description>
         Prueba de Impresiones
@@ -76,10 +78,4 @@
     <gap:splash gap:platform="ios" height="768" src="www/res/screen/ios/screen-ipad-landscape.png" width="1024" />
     <gap:splash gap:platform="winphone" src="www/res/screen/windows-phone/screen-portrait.jpg" />
     <access origin="*" />
-    <allow-intent href="http://*/*" />
-    <allow-intent href="https://*/*" />
-    <allow-intent href="tel:*" />
-    <allow-intent href="sms:*" />
-    <allow-intent href="mailto:*" />
-    <allow-intent href="geo:*" />
 </widget>

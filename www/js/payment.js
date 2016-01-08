@@ -13,8 +13,8 @@ function receiveJson(){
 		$('#valueCxX').val(jsonObject.Pagar[0].factura.total);
 		$('#printTotal').html(jsonObject.Pagar[0].factura.total);
 		
-		$('#invoiceNr').html($('#nextnumber').val());
-		$('#printInvoiceNr').html($('#nextnumber').val());
+		//$('#invoiceNr').val($('#nextnumber').val());
+		//$('#printInvoiceNr').html($('#nextnumber').val());
 		
 		/*$.ajax({
 			type: 'POST',
@@ -386,19 +386,19 @@ function performPurchase(restaurant){
 	pagar();
 	if($('#idCliente').val()!=''&&$('#idCliente').val()>0){
 		var table;
-		var aux;
+		var aux=$('#invoiceNr').val();
 		var acc = document.getElementById('acc').value;
 		var echo = document.getElementById('echo').value;
 		//alert(acc+'**'+echo);
 
-		if(restaurant == 'table'){
+		/*if(restaurant == 'table'){
 			table = parseInt($('#shopActivatedTable').val());
 			aux = parseInt($('#shopActivatedAux').val());
 			}
 		else{
 			table = parseInt($('#shopActivatedTable').val());
 			aux = parseInt($('#shopActivatedAux').val());
-			}
+			}*/
 
 		var invoicePaid = parseFloat($('#invoicePaid').html());
 		var invoiceTotal = parseFloat($('#invoiceTotal').html());
@@ -515,10 +515,36 @@ function performPurchase(restaurant){
 			function Ingresafacturas(tx){
 				tx.executeSql("INSERT INTO FACTURAS(clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,vauleCxC,paymentConsumoInterno,tablita,aux,acc,echo,fecha,timespan)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",[clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,valueCxC,paymentConsumoInterno,table,aux,acc,echo,hoy,mitimespan],function(){
 					console.log("Nueva Factura Ingresada");
+					var mijsonprod=JSON.parse(fetchJson);
+					var misprod = mijsonprod.Pagar[0].producto;
+						for(var j in misprod){
+							var item = misprod[j];
+							IngresaDetalles(item,mitimespan);
+						}
+
 					//$('#pay').fadeOut('fast');
 					// envia('nubepos/nubepos/');
 				});
 			}
+			
+		function IngresaDetalles(item,mifactura){
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+            db.transaction(function (tx2){
+				var string_impuestos=item.impuesto_prod;
+				var miprecio=parseFloat(item.precio_orig);
+				var preciomas=0;
+				/*var listaimpuestos=string_impuestos.split('@');
+				if(listaimpuestos.indexOf('1')>=0)
+					preciomas+=miprecio*(0.12);
+				if(listaimpuestos.indexOf('2')>=0)
+					preciomas+=miprecio*(0.10);*/
+				miprecio=miprecio+preciomas;
+				
+				tx2.executeSql("INSERT INTO FACTURAS_FORMULADOS(timespan_factura,timespan_formulado,cantidad,precio_unitario)VALUES(?,?,?,?)",[mifactura,item.id_producto,item.cant_prod,miprecio],function(){
+					console.log("Nuevo Detalle Factura Ingresado");
+				});
+			});
+		}
 			
 			// $('#subtotalSinIva,#subtotalIva,#descuentoFactura,#totalmiFactura').val('0');
 			
@@ -670,16 +696,28 @@ function impresionMovil(mijson){
 	 window.open('centvia://?udn=Impresion&utt=NubePOS&cru=nubeposv2&cruf=nubeposv2&c_='+respuesta,'_system','location=yes');
 	 envia('puntodeventa');*/
 	envia('puntodeventa');
-	StarIOAdapter.rawprint(mijson, "BT:", function() {
-			$('.productosComprados').remove();
-			$('#subsiniva').html('');
-			$('#subconiva').html('');
-			$('#impuestos').html('');
-			$('#descFac').html('');
-			$('#totalPagado').html('');
-			$('#tablaCompra').html('');
-			$('#printFactura').hide();
-	});
+	$('.productosComprados').remove();
+	$('#subsiniva').html('');
+	$('#subconiva').html('');
+	$('#impuestos').html('');
+	$('#descFac').html('');
+	$('#totalPagado').html('');
+	$('#tablaCompra').html('');
+	$('#printFactura').hide();
+	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+	db.transaction(function (tx){
+		tx.executeSql('SELECT printer FROM CONFIG where id=1',[],
+		function(tx,res){
+			if(res.rows.length>0){
+				var miprint=res.rows.item(0);
+				StarIOAdapter.rawprint(mijson,miprint.printer, function() {	
+					showalert("Imprimiendo Factura");
+				});
+			}else{
+				showalert("No se ha configurado una impresora");
+			}
+		});
+	},errorCB,successCB);
 }
 
 function imprSelec(muestra)
@@ -1755,7 +1793,12 @@ function cancelPayment(){
           }
 		  
 function BuscarCliente(e){
-	var valor=$('#busquedacliente').val();
+	var valor=$('#cedulaP').val();
+	$('#descripcionD input').each(function(){
+		if($(this).attr('id')!='cedulaP')
+			$(this).val('');
+	});
+	
 	if(e==13){
 		mostrarClientes();
 		//$('#opaco').fadeIn();
@@ -1781,6 +1824,16 @@ function BuscarCliente(e){
 					if($('#insideShop').length > 0){
 						continueShopping(row.id);
 					}
+					
+						/*$('#descripcionD input').each(function(){
+							if(row.cedula=='9999999999999'){
+								if($(this).attr('id')!='cedulaP')
+									$(this).prop('readonly','true');
+							}else{
+								$(this).removeProp('readonly');
+							}
+						});*/
+					
 			}});	
 		},errorCB,successCB);
 		
@@ -1837,7 +1890,15 @@ function BuscarCliente(e){
 		}).fail(function(){
 			mostrarClientes();
 		});*/
-		
+		$('#descripcionD input').each(function(){
+			if(valor=='9999999999999'){
+				if($(this).attr('id')!='cedulaP')
+					$(this).prop('readonly','true');
+			}else{
+					$(this).removeProp('readonly');
+			}
+		});
+	
 	}
 }
 
@@ -2178,10 +2239,7 @@ function mostrarClientes(){
 			$("#newCliente ").html('\
 			<div style="position:relative; left:0%; width:100%; height:100%" id="borrable">\
 				<div id="cuadroClientes" class="cuadroClientes" style="height:100%;"> \
-					<h3>\
-						Cliente\
-					</h3> \
-					<button type="button" style="margin-right:5px; position:absolute; top:10px; right:12px; cursor:pointer;" class="close" onclick="noCliente();" aria-label="Close"><span aria-hidden="true">x</span></button>\
+					<h3>Cliente</h3><div style="width:100%; text-align:right; padding-right:5px; padding-top:15px;cursor:pointer;color:#1495C0; position:absolute; top:-10px; right:12px; cursor:pointer;" onclick="noCliente();"><i class="fa fa-chevron-circle-left fa-3x" title="Volver..."></i></div>\
 					<table id="descripcionD" class="table table-striped">\
 						<tr> \
 							<td colspan=2>\
@@ -2233,7 +2291,7 @@ function mostrarClientes(){
 												<button tabindex="8" class="btn btn-default">Cancelar</button> \
 											</td>\
 											<td style="vertical-align: top;">\
-												<button tabindex="7" class="btn btn-primary" onclick="jsonNuevoCliente()">Guardar</button> \
+												<button tabindex="7" class="btn btn-success" onclick="jsonNuevoCliente()">Guardar</button> \
 											</td>\
 										</tr>\
 									</table>\

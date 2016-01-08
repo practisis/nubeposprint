@@ -12,6 +12,9 @@
         },
         "com.uforge.plugins.StarIOAdapter": {
             "PACKAGE_NAME": "com.practisis.cloudprint2"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "com.practisis.cloudprint2"
         }
     },
     "dependent_plugins": {}

@@ -10,14 +10,6 @@
 	.numero table{
 		font-size:25px;font-weight:bolder;
 	}
-	#itemsVendidos {
-		background-color: #F1F1F2;
-		border-radius: 100%;
-		color: #F1F1F2;
-		height: 20px;
-		text-align: center;
-		width: 20px;
-	}
 </style>
 <script type="text/javascript" src="js/funciones.js"></script>
 <script type="text/javascript" src="js/payment.js"></script>
@@ -56,10 +48,8 @@
 																							
 								</td>
 								<td>					
-									
 										<label class="textosApertura" type="1">(# factura) </label>
 										<input step='any' id="inpEstablecimiento3" placeHolder="200" value='001' pattern="[0-9]*" class='form-control' />
-										
 								</td>
 								</tr>
 							</table>
@@ -301,11 +291,11 @@
 	<div class='row'>
 	<div class='buscador col-lg-12 col-md-12 col-xs-4' id='buscador' style='margin-top:10px;'>
 		<div class='row'>
-		<div class='col-xs-3'>
+		<div style='display:none;'>
 			<button type='button' onclick='toogleCalc();' id='pad' class='btn btn-primary bnt-lg' style='margin-top:5px;'><span class='glyphicon glyphicon-menu-left' style='display:inline;'></span><span>Pad</span></button>
 			<button type='button' onclick='toogleCalc();' id='grid' class='btn btn-primary bnt-lg' style='display:none;margin-top:5px;'><span class='glyphicon glyphicon-menu-left' style='display:inline;'></span><span>Grid</span></button>
 		</div>
-		<div class='col-xs-9'>
+		<div class='col-xs-12'>
 			<div class="input-group">
 			<span class="input-group-addon"><span class='glyphicon glyphicon-search'></span></span>
 			<input type='text' id='inputbusc' name='inputbusc' placeholder='Buscar' onkeydown='BuscarSugerencias2(this.value,event);' class='form-control input'  onchange='BuscarSugerencias2(this.value,event);'/>
@@ -333,7 +323,7 @@
 												Cant.
 											</td>
 											<td valign='middle' align='center'>
-												<span id='itemsVendidos'>1</span>
+												<span id='itemsVendidos' class='badge'>0</span>
 											</td>
 										</tr>
 									</table>
@@ -369,7 +359,7 @@
 				</div>
 				<div class='col-xs-6'>
 					<center>	
-						<button type='button' class='btn btn-danger btn-lg' id='btn_pagar' style='float:right; margin-top:5px;float:left;' onclick="AntesDePagar(); return false;">PAGAR&nbsp;<span id='total'>0.00</span></button>
+						<button type='button' class='btn btn-success btn-lg' id='btn_pagar' style='float:right; margin-top:5px;float:left;' onclick="AntesDePagar(); return false;">PAGAR&nbsp;<span id='total'>0.00</span></button>
 					</center>
 				</div>
 			</div>
@@ -438,28 +428,66 @@
 
 
 	<div  class="modal fade" id="popupCantidad" role="dialog">
-		<div class="modal-dialog modal-lg">
+		<div class="modal-dialog modal-sm">
 			<div class='modal-content text-center'>
 				<div class='modal-header'>
-					<button type='button' style='color:#404041; margin-right:5px;' class='close' data-dismiss='modal' aria-label='Close'>
+					<button type='button' style='color:#404041; margin-right:5px; margin-top:5px;' class='close' data-dismiss='modal' aria-label='Close'>
 						<span aria-hidden='true'>x</span>
 					</button>
-					<h2>Nueva Cantidad</h2>
+					<h3>Nueva Cantidad</h3>
 				</div>
 				<span id='msjDescuentoError'></span>
-				<div class="modal-body divdescuento" style='color:#404041; position:relative;'>
-					<div id="discountAdded" style="display: none; text-align: center; color: green">OK!</div>
-					<div class="input-group" style='width:80%; margin-left:auto; margin-right:auto;'>
+				<div class="modal-body divcalculadora" style='color:#404041; position:relative;'>
+					<!--<div class="input-group" style='width:80%; margin-left:auto; margin-right:auto;'>
 						<span class="input-group-addon" id='labeladdDiscount'>Cantidad</span>
 						<input class='form-control input-lg' type="number" min='0' onkeypress='soloNumerost(event);'  id="modificaCantidadActual" value="0" onclick='this.select();'/>
-						<input type='hidden' id='recibeIdentificadorTr' />
-						<input type='hidden' id='productoIDAcambiar'  />
+					</div>-->
+					<div class='row'>
+						<div class='col-xs-12'>
+							<div class='cantidad' id='modificaCantidadActual'>0</div>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='1'>1</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='2'>2</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='3'>3</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='4'>4</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='5'>5</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='6'>6</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='7'>7</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='8'>8</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='9'>9</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='0'>0</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='p'>.</button>
+						</div>
+						<div class='col-xs-4' align='center'>
+							<button class='numeroc btn btn-default btn-lg' cual='d'><span class='glyphicon glyphicon-remove'></span></button>
+						</div>
 					</div>
-					
-					<div id='btn_agregar1' class='btn btn-primary btn-lg' onclick='cambiarCantidad()' style='margin:10px;'>Cambiar</div>
-					<div id='btn_agregar2' class='btn btn-primary btn-lg' onclick='cambiarCantidad2()' style='margin:10px;display:none;'>Cambiar</div>
-					<div class='btn btn-danger btn-lg' onclick="closePopup2(); return false;" id='btn_cancelar' style='margin:10px;'>Cancelar</div>
-							
+					<input type='hidden' id='recibeIdentificadorTr' />
+					<input type='hidden' id='productoIDAcambiar'  />
+					<div id='btn_agregar1' class='btn btn-primary' onclick='cambiarCantidad()' style='margin:10px;'>Cambiar</div>
+					<div id='btn_agregar2' class='btn btn-primary' onclick='cambiarCantidad2()' style='margin:10px;display:none;'>Cambiar</div>
+					<div class='btn btn-danger' onclick="closePopup2(); return false;" id='btn_cancelar' style='margin:10px;'>Cancelar</div>
 				</div>
 			</div>
 		</div>
@@ -530,7 +558,7 @@
 		</div>
 		<!--<div id="positionClosePreCuenta" style="position: absolute; left: 96%; top: 0%; z-index: 20;"><img onclick="cancelPayment(); return false;" style="cursor: pointer;" src="../images/xcierre.png"/></div>-->
 		<div style="display: none;" id="json"></div>
-		<form id="referenceToReset">
+		<div id="referenceToReset">
 				<input id="acc" name="acc" type="hidden" value="">
 				<input id="echo" name="echo" type="hidden" value=""> 
 				<div class=''>
@@ -539,7 +567,9 @@
 						<div class='col-xs-12'>
 						<div style='margin-top:20px; margin-bottom:20px;'>
 						<h3 style='margin-top:0px;'>Ingreso de Pagos</h3>
-						<button type='button' style='color:#404041; margin-right:5px; position:absolute; top:5px; right:12px; cursor:pointer;' class='close' aria-label='Close'><span aria-hidden='true' onclick='$("#paymentModule").slideUp();'>x</span></button>
+							<div style='width:100%; text-align:right; padding-right:5px; padding-top:15px;cursor:pointer;color:#1495C0; position:absolute; top:0px; right:12px; cursor:pointer;' onclick='$("#paymentModule").slideUp();'>
+								<i class="fa fa-chevron-circle-left fa-3x" title='Volver...'></i>
+							</div>
 						</div>
 						</div>
 					</div>
@@ -721,8 +751,8 @@
     							    <button id="cancelButton" class='btn btn-default btn-lg' onclick="cancelPayment(); return false;" style='margin-right:5px;'>Cancelar</button>
                                 </td>
                                 <td>
-        						<button style="float:right; margin-right:3px;" id="payButton" class="btn btn-danger btn-lg" onclick="performPurchase('table'); return false;">PAGAR $<span id="invoiceTotal" class="payOverview">
-									0.00</span></bsutton>
+        						<button style="float:right; margin-right:3px;" id="payButton" class="btn btn-success btn-lg" onclick="performPurchase('table'); return false;">PAGAR $<span id="invoiceTotal" class="payOverview">
+									0.00</span></button>
 								</td>
                                 <td>
         						    <div style="display:none; min-width:80px; width:80px; height:30px; min-height:30px; padding-top:5px;" id="payButtonActivated" class='actiongreenbutton'>PAGAR <span id="invoiceTotal" class="payOverview">
@@ -735,7 +765,7 @@
 						 </div>
 					</div>
 				</div>
-		</form>
+		</div>
 	<!--</div>--->
 	</div>
 	</div>
@@ -954,7 +984,9 @@
     });
     function botonesCalculadora(){
         height=($(window).height() * 0.70) / 4 ;
+        heightc=($(window).height() * 0.45) / 4 ;
         $(".numero").css("height", height +"px");
+        $(".numeroc").css("height", heightc +"px");
     }
     
 </script>

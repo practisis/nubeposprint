@@ -657,7 +657,7 @@
 					idcategoria=$('#idcategoria').val();
 					db.transaction(function(tx){
 					console.log('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+currentTimespanCategory+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+',servicio='+serv+' WHERE timespan='+idproducto+' AND NOT EXISTS(SELECT 1 FROM PRODUCTOS WHERE (formulado like "'+nombrep+'" or codigo like "'+codigop+'") and timespan!='+idproducto+');');
-					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+currentTimespanCategory+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+' WHERE timespan='+idproducto+' AND NOT EXISTS(SELECT 1 FROM PRODUCTOS WHERE (formulado like "'+nombrep+'" or codigo like "'+codigop+'") and timespan!="'+idproducto+'");',[],function(tx,results){
+					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+currentTimespanCategory+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+' ,sincronizar="true" WHERE timespan='+idproducto+' AND NOT EXISTS(SELECT 1 FROM PRODUCTOS WHERE (formulado like "'+nombrep+'" or codigo like "'+codigop+'") and timespan!="'+idproducto+'");',[],function(tx,results){
 					console.log("prod:"+idproducto);
 						/*if(costo != costoreal && costo != ''){
 						  tx.executeSql('UPDATE CARDEX SET precio_unidad='+costo+',ppq_real='+costo+' where id_formulado = '+idproducto,[],function(tx,resultsc){
@@ -693,7 +693,7 @@
 				idcategoria=$('#idcategoria').val();
 				console.log('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+idcategoria+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+',servicio='+serv+' WHERE timespan="'+idproducto + '"');
 				db.transaction(function(tx){
-					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+idcategoria+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+',servicio='+serv+' WHERE timespan="'+idproducto + '"',[],function(tx,results){
+					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+idcategoria+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+',servicio='+serv+' ,sincronizar="true" WHERE timespan="'+idproducto + '"',[],function(tx,results){
 					console.log(results);
 					//VerDatosProducto(idproducto);
 					showalert("Datos Actualizados con éxito.");

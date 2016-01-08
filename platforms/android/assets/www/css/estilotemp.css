@@ -210,7 +210,7 @@ box-shadow: inset 1px 2px 15px -9px rgba(90,91,91,0.9);*/
 	-moz-box-shadow: inset 3px 2px 30px -10px rgba(90,91,91,1);
 	box-shadow: inset 3px 2px 30px -10px rgba(90,91,91,1);*/
 }
-.numero{
+.numero,.numeroc{
 	text-align:center;
 	/*border-radius:5px;*/
 	/*border:1px solid #5a5b5d;*/
@@ -219,6 +219,8 @@ box-shadow: inset 1px 2px 15px -9px rgba(90,91,91,0.9);*/
 	/*color:#5a5b5d;*/
 	cursor:pointer;
 	width:100%;
+	margin-top:5px;
+	font-size:28px;
 	/*-webkit-box-shadow: inset 3px 2px 26px -15px rgba(90,91,91,1);
 	-moz-box-shadow: inset 3px 2px 26px -15px rgba(90,91,91,1);
 	box-shadow: inset 3px 2px 26px -15px rgba(90,91,91,1);*/
@@ -248,6 +250,8 @@ box-shadow: inset 1px 2px 15px -9px rgba(90,91,91,0.9);*/
 	margin-right:auto;
 	background:#404041;
 	color:#79ba43;
+	font-size:25px;
+	height:40px;
 	/*text-shadow:1px 1px 1px #70cbcd;*/
 }
 #altodetalle{

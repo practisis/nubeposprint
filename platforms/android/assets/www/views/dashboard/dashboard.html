@@ -3,15 +3,17 @@
 		<div class='col-lg-12'>
 			<div class="panel mini-box">
 				<div class='row'>
-					<div class='col-lg-10 col-md-10 col-xs-10'>
-						Fecha:
+					<div class='col-lg-1 col-md-1 col-xs-1'>
+						<div style='text-align:right;'>Fecha:</div>
+					</div>
+					<div class='col-lg-9 col-md-9 col-xs-9'>
 						<div class="input-group"> 
 						<span class="input-group-addon glyphicon glyphicon-calendar" id="basic-addon1"></span>
-						<input type='text' class='form-control' id='desde'/>
+						<input type='text' class='form-control' id='desde' readonly />
 						<input type='text' class='form-control' id='hasta' style='display:none;'/></div>
 					</div>
 					<div class='col-lg-2 col-md-2 col-xs-2' style='text-align:right;'>
-						<button class='btn btn-primary' type='button' style='margin-top:20px;' onclick='ObtenerDatosDashboard();'>FILTRAR</button>
+						<button class='btn btn-primary' type='button' style='margin-top:0px;' onclick='ObtenerDatosDashboard();'>FILTRAR</button>
 					</div>
 				</div>
 			</div>
@@ -24,7 +26,7 @@
                     <i class="fa fa-shopping-cart"></i>
                 </span>
                 <div class="box-info">
-                    <p class="size-h3" id='totalventas'></p>
+                    <p class="size-h3" id='totalventas'>0.00</p>
                     <p class="text-muted"><span data-i18n="Ventas $">Ventas $</span></p>
                 </div>
             </div>
@@ -35,7 +37,7 @@
                     <i class="fa fa-credit-card"></i>
                 </span>
                 <div class="box-info">
-                    <p class="size-h3" id='ticketpromedio'></p>
+                    <p class="size-h3" id='ticketpromedio'>0.00</p>
                     <p class="text-muted"><span data-i18n="Ticket Promedio $">Ticket Promedio $</span></p>
                 </div>
             </div>
@@ -117,8 +119,7 @@
 </div>
 <div id='jsoncats'></div>
 <script>
-$(document).ready(function(){
- $('#desde,#hasta').datepicker();
+$('#desde,#hasta').datepicker();
  //colocar fechas
   var ahora=new Date();
 			
@@ -143,6 +144,7 @@ $(document).ready(function(){
   var fechamanana=manana.getFullYear()+"-"+mes+'-'+dia;
   $('#desde').val(fechahoy);
   $('#hasta').val(fechamanana);
+$(document).ready(function(){
   ObtenerDatosDashboard();
   
   //obtener datos para el dashboard
@@ -164,13 +166,16 @@ function ObtenerDatosDashboard(){
 	fhasta=fhasta.replace("-","/");
 	fhasta=new Date(fhasta);
 	categoriasvector= new Array();
+	var misubtotal=0;
 	var db = window.openDatabase("Database","1.0","PractisisMobile", 200000);
+	
 	db.transaction(
 		function (tx){
 			console.log('SELECT COUNT(*) AS number_rows FROM facturas WHERE fecha >='+fdesde.getTime()+' AND fecha <='+fhasta.getTime()+'');
 			tx.executeSql('SELECT COUNT(*) AS number_rows FROM facturas WHERE fecha >=? AND fecha <=?',[fdesde.getTime(),fhasta.getTime()],
 			function(tx,res){
 				console.log('trans'+res.rows.item(0).number_rows);
+				console.log('fecha'+fdesde.getTime()+'/'+fhasta.getTime());
 				$('#transacciones').html(res.rows.item(0).number_rows);
 			});				
 	},errorCB,successCB);
@@ -178,113 +183,18 @@ function ObtenerDatosDashboard(){
 	//querysubtotal
 	db.transaction(
 		function (tx){
-			tx.executeSql('SELECT fetchJson as fact,fecha FROM facturas WHERE fecha >=? AND fecha <=?',[fdesde.getTime(),fhasta.getTime()],
+			tx.executeSql('select sum(f.cantidad*f.precio_unitario) as total from facturas_formulados f,facturas p where f.timespan_factura=p.timespan and p.fecha>=? and p.fecha<=? ',[fdesde.getTime(),fhasta.getTime()],
 			function(tx,res){
-				var misubtotal=0;
-				var morrisvector=new Array();
-				var productosvector=new Array();
-				var categoriasvector=new Array();
-				
-				for(var n=0;n<res.rows.length;n++){
-					var mifact=JSON.parse(res.rows.item(n).fact);	
-					//productos para ranking
-					var misproductos=mifact.Pagar[0].producto;
-					//console.log(misproductos);
-					for(var s in misproductos){
-						var totprod=misproductos[s].precio_orig*misproductos[s].cant_prod;
-						misubtotal+=totprod;
-						//fecha para morris
-						//console.log("A"+misubtotal);
-						var mifecha=res.rows.item(n).fecha;
-						var formated=new Date(mifecha);
-						var mes=(parseInt(formated.getMonth())+1).toString();//console.log(mes);
-						var dia=formated.getDate().toString();
-						  if(dia.length==1)
-									dia='0'+dia;
-						  if(mes.length==1)
-									mes='0'+mes;
-						var indice=dia+"/"+mes;
-						if(morrisvector['"'+indice+'"']!=null){
-							var antes=parseFloat(morrisvector['"'+indice+'"']);
-							//console.log(antes);
-							var ahora=antes+totprod;
-							//console.log(ahora);
-							morrisvector['"'+indice+'"']=ahora.toFixed(2);
-						}else{
-							morrisvector['"'+indice+'"']=parseFloat(totprod).toFixed(2);
-							//console.log(morrisvector);
-						}
-						
-						//console.log(misproductos[s].id_producto);
-						SumarCategoria(misproductos[s].id_producto,misproductos[s].precio_orig,misproductos[s].cant_prod);
-					
-						
-						if(productosvector['"'+misproductos[s].id_producto+'"']==null){
-							productosvector['"'+misproductos[s].id_producto+'"']=new Array();
-							productosvector['"'+misproductos[s].id_producto+'"'].venta=parseFloat(misproductos[s].precio_orig)*parseFloat(misproductos[s].cant_prod);
-							productosvector['"'+misproductos[s].id_producto+'"'].cantidad=parseFloat(misproductos[s].cant_prod);
-							productosvector['"'+misproductos[s].id_producto+'"'].nombre=misproductos[s].nombre_producto;
-							//console.log(productosvector['"'+misproductos[s].id_producto+'"']);
-						}else{
-							var antes=parseFloat(productosvector['"'+misproductos[s].id_producto+'"'].venta);
-							var ahora=(parseFloat(misproductos[s].cant_prod)*parseFloat(misproductos[s].precio_orig))+antes;
-							//console.log(misproductos[s].cant_prod);
-							productosvector['"'+misproductos[s].id_producto+'"'].venta=ahora.toFixed(2);
-							var antesc=parseFloat(productosvector['"'+misproductos[s].id_producto+'"'].cantidad);
-							var ahorac=parseFloat(misproductos[s].cant_prod)+antesc;
-							productosvector['"'+misproductos[s].id_producto+'"'].cantidad=ahorac.toFixed(2);
-						}						
-					}
-					
-					//console.log(productosvector);
-					var datap = new google.visualization.DataTable();
-					datap.addColumn('string', 'Producto');
-					datap.addColumn('number', 'Ventas');
-					//var lineasrank='';
-					//if(productosvector.length>0){
-						for(var pro in productosvector){
-							//console.log(pro);
-							/*lineasrank+='<tr><td>'+productosvector[pro].nombre+'</td><td>'+parseFloat(productosvector[pro].cantidad).toFixed(2)+'</td><td>'+parseFloat(productosvector[pro].venta).toFixed(2)+'</td></tr>';*/
-							datap.addRow([productosvector[pro].nombre,parseFloat(productosvector[pro].venta)]);
-						}
-						//$('#tablarank tbody').html(lineasrank);
-					//}
-				
-					var optionsp = {
-						title: 'Ranking de ventas por Producto'
-					};
-
-					var chartp = new google.visualization.ColumnChart(document.getElementById('productosten'));
-					chartp.draw(datap,optionsp);
-					
+				if(res.rows.length>0){
+					console.log(res);
+					if(res.rows.item(0).total==null)
+						misubtotal=0;
+					else
+						misubtotal=parseFloat(res.rows.item(0).total);
+					$('#totalventas').html(parseFloat(misubtotal).toFixed(2));
 				}
 				
-				//querycostos
-				/*var costototal=0;
-				tx.executeSql('SELECT sum((cantidad*-1)*ppqreal) as costo FROM cardex WHERE fecha >=? AND fecha <=?',[fdesde.getTime(),fhasta.getTime()],
-				function(tx,res){
-					costototal=res.rows.item(0).costo;
-				});
-				
-				$('#costototal').html(costototal.toFixed(2));
-				if(costototal>0){
-				$('#utilidad').html((misubtotal-costototal).toFixed(2));
-				$('#porcentajecostos').html((costototal*100/misubtotal).toFixed(2));
-				}*/
-				
-				
-				
-				//console.log(morrisvector);
-				var cadenamorris="";
-				var cont=0;
-				for(var k in morrisvector){
-					if(cont>0)
-						cadenamorris+=',';
-					cadenamorris+= '{"x":'+k+',"ventas":"'+morrisvector[k]+'"}';
-					cont++;
-				}
-				cadenamorris="["+cadenamorris+"]";
-				$('#totalventas').html(misubtotal.toFixed(2));
+				//$('#totalventas').html(misubtotal.toFixed(2));
 				var trans=parseFloat($('#transacciones').html());
 				
 				if(trans>0)
@@ -292,23 +202,54 @@ function ObtenerDatosDashboard(){
 				else
 				$('#ticketpromedio').html((0).toFixed(2));
 				//console.log(JSON.parse(cadenamorris));
-				$('#chartventas').html('');
-				
-				/*new Morris.Area({
-				  element: 'chartventas',
-				  data:JSON.parse(cadenamorris),
-				  xkey: 'x',
-				  ykeys: ['ventas'],
-				  labels: ['Ventas US$'],
-				  parseTime: true,
-				  lineColors: ['#E94B3B']
-				});*/
-				
-				/*Datos del presupuesto*/
-				
-				
+				//$('#chartventas,#ventascategoria,#productosten').html('');
 			});				
 	},errorCB,successCB);
+
+	
+	db.transaction(
+		function (tx){
+			console.log('SELECT s.formulado as formu,sum(p.cantidad)*max(p.precio_unitario) as tot FROM facturas f, facturas_formulados p, productos s WHERE f.fecha >='+fdesde.getTime()+' AND s.timespan=p.timespan_formulado AND f.fecha <='+fhasta.getTime()+' and f.timespan=p.timespan_factura group by timespan_formulado order by tot desc limit 10');
+			tx.executeSql('SELECT s.formulado as formu,sum(p.cantidad)*max(p.precio_unitario) as tot FROM facturas f, facturas_formulados p, productos s WHERE f.fecha >=? AND s.timespan=p.timespan_formulado AND f.fecha <=? and f.timespan=p.timespan_factura group by timespan_formulado order by tot desc limit 10',[fdesde.getTime(),fhasta.getTime()],
+			function(tx,res){
+				if(res.rows.length>0){
+					var datap = new google.visualization.DataTable();
+					datap.addColumn('string', 'Producto');
+					datap.addColumn('number', 'Ventas');
+					for(var n=0;n<res.rows.length;n++){
+						datap.addRow([res.rows.item(n).formu,parseFloat(res.rows.item(n).tot)]);
+					var optionsp = {
+						title: 'Ranking de ventas por Producto'
+					};
+					var chartp = new google.visualization.ColumnChart(document.getElementById('productosten'));
+					chartp.draw(datap,optionsp);
+					}
+				}
+			});				
+	},errorCB,successCB);
+	
+	db.transaction(
+		function (tx){
+			console.log('SELECT s.categoria as categ,sum(p.cantidad)*max(p.precio_unitario) as tot FROM facturas f, facturas_formulados p, categorias s,productos pr WHERE f.fecha >='+fdesde.getTime()+' AND s.timespan=pr.categoriaid AND p.timespan_formulado=pr.timespan AND f.fecha <='+fhasta.getTime()+' and f.timespan=p.timespan_factura group by categoriaid order by tot desc');
+			tx.executeSql('SELECT s.categoria as categ,sum(p.cantidad)*max(p.precio_unitario) as tot FROM facturas f, facturas_formulados p, categorias s,productos pr WHERE f.fecha >=? AND s.timespan=pr.categoriaid AND p.timespan_formulado=pr.timespan AND f.fecha <=? and f.timespan=p.timespan_factura group by categoriaid order by tot desc',[fdesde.getTime(),fhasta.getTime()],
+			function(tx,res){
+				if(res.rows.length>0){
+					var data = new google.visualization.DataTable();
+					data.addColumn('string', 'Categoria');
+					data.addColumn('number', 'Ventas');
+					for(var t=0;t<res.rows.length;t++){
+						data.addRow([res.rows.item(t).categ,parseFloat(res.rows.item(t).tot)]);
+					}
+					var options = {
+						title: 'Ventas por Categoría'
+					};
+
+					var chart = new google.visualization.PieChart(document.getElementById('ventascategoria'));
+					chart.draw(data,options);
+				}
+			});				
+	},errorCB,successCB);
+
 	
 	//query para presupuesto
 	db.transaction(
@@ -327,7 +268,7 @@ function ObtenerDatosDashboard(){
 		},errorCB,successCB);
 }
 
-function drawChart(vectorcat) {
+/*function drawChart(vectorcat) {
 	//console.log(vectorcat);
 	var data = new google.visualization.DataTable();
 	data.addColumn('string', 'Categoria');
@@ -378,6 +319,6 @@ function SumarCategoria(idprod,precio,cant){
 				});								
 		},errorCB,successCB);
 			
-}
+}*/
 </script>
   

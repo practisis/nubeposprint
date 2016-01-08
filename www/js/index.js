@@ -1,4 +1,9 @@
+var intervalProcesoRepetir;
+var loopSicnronizador;
 function envia(donde){
+			if(loopSicnronizador) clearInterval(loopSicnronizador);
+            clearInterval(intervalProcesoRepetir);
+			
 					var lugar='';
 					$('#cargandoTabs').css('display','block');
 					if(donde=='dashboard')
@@ -25,6 +30,8 @@ function envia(donde){
 					//alert(lugar);
 					if(donde=='empresa')
 					lugar="views/cloud/indexEmpresa.html";
+					if(donde=='printconfig')
+					lugar="views/configuracion/impresoras.html";
 					if(!lugar) lugar="404.html";
 					setTimeout(function() {
 						$('#cargandoTabs').css('display','none');
@@ -50,16 +57,19 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+		document.addEventListener("pause", function(){ alert("pausa");}, false);
+		document.addEventListener("backbutton", function(){alert("back");}, false);
     },
     // deviceready Event Handler
     //
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        app.receivedEvent('deviceready');
+       // app.receivedEvent('deviceready');
+	  // onDeviceReady();
 	},
 	// Update DOM on a Received Event
-	receivedEvent: function(id) {
+	/*receivedEvent: function(id) {
 			var parentElement = document.getElementById(id);
 			var listeningElement = parentElement.querySelector('.listening');
 			var receivedElement = parentElement.querySelector('.received');
@@ -68,15 +78,20 @@ var app = {
 			receivedElement.setAttribute('style', 'display:block;');
 
 			console.log('Received Event: ' + id);
-		}
+			
+		}*/
 };
 
 
 
 
- onDeviceReady();
+    onDeviceReady();
     function onDeviceReady(){
-			window.StarIOAdapter = {};
+		
+		//alert("device Ready>>" + device.uuid);
+		//$('#deviceid').html(device.uuid);
+		
+		window.StarIOAdapter = {};
 		var handle_error_callback = function(error_message) {
 			alert(error_message);
 		};
@@ -103,20 +118,21 @@ var app = {
 		};
 		
 		/*Search the availables printers*/
-		window.StarIOAdapter.search=function(message,port_search,success_callback,error_callback){
+		window.StarIOAdapter.searchall=function(port_search, success_callback, error_callback){
+			//alert("todas buscar");
 			if(error_callback == null) {
 				error_callback = handle_error_callback;
 			}
-
-			return cordova.exec(success_callback, error_callback, "StarIOAdapter", "search", [message, port_search]);
+			return cordova.exec(success_callback, error_callback, "StarIOAdapter", "searchall", [port_search]);
 		};
+		
         envia('dashboard');
         var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
         db.transaction(iniciaDB, errorCB, successCB);
         console.log(db);
 
-     /*   alert("device Ready>>" + device.model );
-         var element = document.getElementById('deviceProperties');
+		
+        /* var element = document.getElementById('deviceProperties');
         element.innerHTML = 'Device Model: '    + device.model    + '<br />' +
                         'Device Cordova: '  + device.cordova  + '<br />' +
                         'Device Platform: ' + device.platform + '<br />' +
@@ -130,8 +146,9 @@ var app = {
         //console.log("Ana");
         var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
         //tx.executeSql('DROP TABLE IF EXISTS PRODUCTOS');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS PRODUCTOS (id_local integer primary key AUTOINCREMENT,id integer, formulado text, codigo text, precio real, categoriaid text,cargaiva integer,productofinal integer,materiaprima integer,timespan text,ppq real default 0,color text,servicio integer default 0,estado integer default 1)');
-		tx.executeSql('CREATE TABLE IF NOT EXISTS CONFIG (id integer primary key AUTOINCREMENT, nombre text, razon text , ruc integer, telefono integer , email text , direccion text )');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS PRODUCTOS (id_local integer primary key AUTOINCREMENT,id integer, formulado text, codigo text, precio real, categoriaid text,cargaiva integer,productofinal integer,materiaprima integer,timespan text,ppq real default 0,color text,servicio integer default 0,estado integer default 1, sincronizar boolean default "true" )');
+		tx.executeSql('CREATE TABLE IF NOT EXISTS CONFIG (id integer primary key AUTOINCREMENT, nombre text, razon text , ruc integer, telefono integer , email text , direccion text, printer text)');
+		tx.executeSql('CREATE TABLE IF NOT EXISTS FACTURAS_FORMULADOS (id integer primary key AUTOINCREMENT, timespan_factura text, timespan_formulado text , cantidad real, precio_unitario real)');
         tx.executeSql('INSERT INTO PRODUCTOS(id_local,id,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,formulado,estado) VALUES(-1,-1,"-1",0,-1,0,0,0,"-1","Producto NubePOS",0)');
         tx.executeSql('CREATE TABLE IF NOT EXISTS CARDEX (id integer primary key AUTOINCREMENT,id_formulado integer, cantidad real, descripcion text, precio_unidad real, fecha integer,ppq_real real,iva numeric,timespan integer,idfactura text)');
         tx.executeSql('SELECT COUNT(id_local) as cuantos FROM PRODUCTOS',[],function(tx,res){
@@ -144,7 +161,7 @@ var app = {
         var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
         //tx.executeSql('DROP TABLE IF EXISTS PRODUCTOS');
         //tx.executeSql('CREATE TABLE IF NOT EXISTS empresa (id integer primary key AUTOINCREMENT, nombre integer )');
-         tx.executeSql('CREATE TABLE IF NOT EXISTS empresa (id integer primary key AUTOINCREMENT, nombre integer, nombreempresa text )');
+         tx.executeSql('CREATE TABLE IF NOT EXISTS empresa (id integer primary key AUTOINCREMENT, nombre integer, nombreempresa text, id_barra text, barra_arriba text )');
         
         var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
         //tx.executeSql('DROP TABLE IF EXISTS PRODUCTOS');
@@ -195,14 +212,14 @@ var app = {
         
         
         //tx.executeSql('DROP TABLE IF EXISTS CATEGORIAS');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS CATEGORIAS (id integer primary key AUTOINCREMENT, categoria text, activo integer, existe integer , timespan text )');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS CATEGORIAS (id integer primary key AUTOINCREMENT, categoria text, activo integer, existe integer , timespan text, sincronizar boolean default "true"  )');
         tx.executeSql('SELECT COUNT(id) as cuantos FROM CATEGORIAS',[],function(tx,res){
             var existen=res.rows.item(0).cuantos;
             if(existen==0)
                 db.transaction(IngresaCategorias,errorCB,successCB);
         });
         //tx.executeSql('DROP TABLE IF EXISTS CLIENTES');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS CLIENTES (id integer primary key AUTOINCREMENT,nombre text, cedula text, email text, direccion text, telefono text,existe integer,timespan TEXT)');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS CLIENTES (id integer primary key AUTOINCREMENT,nombre text, cedula text, email text, direccion text, telefono text,existe integer,timespan TEXT, sincronizar boolean default "true")');
         tx.executeSql('SELECT COUNT(id) as cuantos FROM CLIENTES',[],function(tx,res){
             var existen=res.rows.item(0).cuantos;
             if(existen==0)
@@ -423,12 +440,14 @@ var app = {
 					$('#detaFormPago').html('Efectivo');
 					$('#detaFormPagoValor').html(parseFloat(row.cash).toFixed(2));
 					totalpagof+=parseFloat(row.cash);
+					$('#detaFormPago').parent().fadeIn();
 				}
 				if(formaDePago == 2){
 					var datocard=row.cards.split('|');
 					$('#detaFormPago').html('Tarjeta');
 					$('#detaFormPagoValor').html(datocard[2].substring(0,datocard[2].length - 1));
 					totalpagof+=parseFloat(parseFloat(datocard[2].substring(0,datocard[2].length - 1)));
+					$('#detaFormPago').parent().fadeIn();
 				}
 				if(formaDePago == 3){
 				var datocheque=row.cheques.split('|');
@@ -436,6 +455,7 @@ var app = {
 					$('#detaFormPago').html('Cheques');
 					$('#detaFormPagoValor').html(datocheque[2].substring(0,datocheque[2].length - 1));
 					totalpagof+=parseFloat(datocheque[2].substring(0,datocheque[2].length - 1));
+					$('#detaFormPago').parent().fadeIn();
 				}
 				
 				if(formaDePago != 1 && formaDePago != 2 && formaDePago != 3){
@@ -447,12 +467,14 @@ var app = {
 						if(fpago[t]==1){
 							$('#detaFormPago').html('Efectivo');
 							$('#detaFormPagoValor').html(parseFloat(row.cash).toFixed(2));
+							$('#detaFormPago').parent().fadeIn();
 						}
 						if(fpago[t]==2){
 							var datocard=row.cards.split('|');
 							$('#detaFormPago1').html('Tarjeta');
 							//console.log(datocard);
 							$('#detaFormPagoValor1').html(datocard[2].substring(0,datocard[2].length - 1));
+							$('#detaFormPago1').parent().fadeIn();
 						}
 						
 						if(fpago[t]==3){
@@ -460,6 +482,7 @@ var app = {
 							$('#detaFormPago2').html('Cheques');
 							//console.log(datocard);
 							$('#detaFormPagoValor2').html(datocheque[2].substring(0,datocheque[2].length - 1));
+							$('#detaFormPago2').parent().fadeIn();
 						}
 					}
                 }

@@ -24,22 +24,21 @@
 				<div class="col-sm-12" align="center">
 					<div class="row"> 
 									
-						<div class="col-md-3" align="left" >
-							<div role="group" class="btn-group">
-								   <div id="includeDropCategory" style=""></div>
-									
-							</div>
-						</div>
-						<div class="col-md-7" align="left">
+						<!--<div class="col-md-3" align="left">
+							<div role="group" class="btn-group">-->
+								   <div id="includeDropCategory" style="display:none;"></div>
+							<!---</div>
+						</div>-->
+						<div class="col-lg-4 col-md-4 col-xs-4" align="left">
 							<div class="input-group" style="width:100%;">
-								<input  type="text" class="form-control" placeholder="Escriba un producto..." id="searchKeyword" onkeyUp="if(event.keyCode==13) {return false; }else{searchProduct($(this))}">
+								<input  type="text" class="form-control" placeholder="Escriba un producto..." id="searchKeyword">
 								<span class="input-group-btn">
-									<button class="btn btn-default" type="button" onclick="searchProduct($('#searchKeyword')); ">Buscar</button>
+									<button class="btn btn-primary" type="button" onclick="searchProduct($('#searchKeyword')); ">Buscar</button>
 								</span>
 							</div><!-- /input-group -->
 						</div>
-						<div class='col-md-2'>
-							<button type='button' class='btn btn-danger' id='nuevoProducto' onclick="envia('nuevoproducto');">Nuevo Producto</button>
+						<div class='col-md-8 col-lg-8 col-xs-8' style='text-align:right;'>
+							<button type='button' class='btn btn-success' id='nuevoProducto' onclick="envia('nuevoproducto');">Nuevo Producto</button>
 						</div>
 						
 						
@@ -71,7 +70,8 @@
 					<div class="row" align="center" > <!-- Row Table of products.. -->
 				
 					<div class="col-sm-12">
-						<div id="recibeTodosLosProductos" style="font-size:15px;height:550px;overflow-y:scroll;background-color:#dcdcdc;" class="table-responsive"></div>
+						<div id="recibeTodosLosProductos" style="font-size:14px; height:420px;overflow-y:auto;" class="table-responsive">
+						</div>
 						<input id='totalpags' style='display:none;'/>
 					</div>
 				
@@ -302,8 +302,8 @@ function LlenarComboCat(options,options2){
 	$('#listacategorias').append(options);
 	$("#includeDropCategory").html('\
 	\
-									  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu4"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">\
-									<span id="catsel" data-selec="0">Seleccione una categoria</span>\
+		<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu4"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">\
+	<span id="catsel" data-selec="0">Seleccione una categoria</span>\
 									<span class="caret"></span>\
 								  </button>\
 								  <ul class="dropdown-menu" id="listacombocat" aria-labelledby="dropdownMenu4">\
@@ -362,7 +362,7 @@ function getSearch(){
 	});
 	tx.executeSql(' SELECT p.*, c.categoria as cat  , c.timespan as timespancat FROM PRODUCTOS AS p LEFT JOIN CATEGORIAS AS c ON p.categoriaid = c.timespan where p.estado = 1 order by p.formulado ASC',[],function(tx,resulta){
 		//console.log(resulta);
-		var inhtml='';
+		var inhtml='<table class="table table-striped"><thead><tr><th>Nombre</th><th>Categoria</th><th style="text-align:right; width:10%;">Precio</th><th style="text-align:center;  width:10%;">IVA</th><th style="text-align:center; width:10%;">Servicio</th><th style="  width:10%;"></th></tr></thead><tbody>';
 		if(resulta.rows.length==0){
 			$('#recibeTodosLosProductos').append('<center><div class="alert alert-success" role="alert"><h3>No Tiene Productos Ingresados</h3></div></center>');
 			setTimeout(function() {
@@ -381,8 +381,7 @@ function getSearch(){
 				var precioConImpuestos = 0;
 				var cargaiva = row.cargaiva;
 				if(row.cargaiva==1)
-						
-						checkiva2='<span class="glyphicon glyphicon-ok" style="color:#1E9F75;"> </span>'; else checkiva2='<span class="glyphicon glyphicon-remove" style="color:red;"> </span>';  
+						checkiva2='<span class="glyphicon glyphicon-ok"> </span>'; else checkiva2='<span class="glyphicon glyphicon-remove"> </span>';  
 				if(row.productofinal==1)
 						checkprfinal='checked';
 				if(row.materiaprima==1)
@@ -391,50 +390,38 @@ function getSearch(){
 				var servicio = row.servicio;
 				console.log('el servicio es '+servicio);
 				if(servicio==1){
-					checkServ2='<span class="glyphicon glyphicon-ok" style="color:#1E9F75;"> </span>';
+					checkServ2='<span class="glyphicon glyphicon-ok"> </span>';
 				}else{
-					checkServ2='<span class="glyphicon glyphicon-remove" style="color:red;"> </span>';  
+					checkServ2='<span class="glyphicon glyphicon-remove"> </span>';  
 				} 
 					
+				var agregarimp=1;
+				if(cargaiva==1)
+					agregarimp+=0.12;
 				
+				if(servicio==1)
+					agregarimp+=0.10;
+					
+				precioConImpuestos=parseFloat(precioproducto)*agregarimp;
 				
-				if(cargaiva == 1 && servicio == 1){
-					precioConImpuestos = (parseFloat(precioproducto * 1.22).toFixed(1));
-				}
-				
-				if(cargaiva == 1 && servicio == 0 || servicio == 'null'){
-					precioConImpuestos = parseFloat((0.12 * precioproducto)+precioproducto).toFixed(1);
-				}
-				if(cargaiva == 0 && servicio == 1){
-					precioConImpuestos = parseFloat((0.1 * precioproducto)+precioproducto).toFixed(1);
-				}
-				if(cargaiva == 0 && servicio == 0 || servicio == 'null'){
-					precioConImpuestos = parseFloat(precioproducto).toFixed(1)
-				}
 					var back='';
 					if(row.color!='')
 						back='background-color:'+row.color;
 						
 					categoria=$('.categoriasPrecargadas[timespan='+row.categoriaid+']').text();
 					inhtml+='\
-					<div class="col-xs-3"  iddb="'+row.id+'" categoria="'+categoria+'" codedb="'+row.codigo+'" formulado="'+row.formulado+'"  clase="listProduct" timespanCat="'+row.categoriaid+'"> <div class="pricing-table" class="clear" style=" ">\
-						<div class="plan">\
-							<h3 style="">'+row.formulado+'</h3>';
-							<!---<div class="panel mini-box" style="text-align:center;"><span class="box-icon bg-info" style="margin-left:40%; '+back+'" >'+row.formulado[0].toUpperCase()+'</span></div>\--->
-							inhtml+='<div><ul>\
-								<li><b>Precio</b><span class="glyphicon glyphicon-usd" style="color:green;font-size:12px;"></span>('+parseFloat(precioConImpuestos)+') </li>\
-								<li><b>Categoría</b> '+categoria+'</li>\
-								<li><b>IVA</b> '+checkiva2+'</li>\
-								<li><b>Servicio</b> '+checkServ2+'</li>\
-							</ul> \
-							</div>';
-							inhtml+='<button class="button btn btn-default btn-lg" onclick="VerificarEliminar('+row.id_local+",'"+row.formulado+"'"+');">Borrar</button>&nbsp;<button class="button btn btn-lg btn-primary"	onclick="editProduct(\''+row.timespan+'\')" >Editar</button>					\
-						\</div></div>\
-					</div>\
+					<tr  iddb="'+row.id+'" categoria="'+categoria+'" codedb="'+row.codigo+'" formulado="'+row.formulado+'"  clase="listProduct" timespanCat="'+row.categoriaid+'">\
+							<td>'+row.formulado+'</td>';
+							inhtml+='<td>'+categoria+'</td>\
+								<td style="text-align:right;">'+parseFloat(precioConImpuestos).toFixed(2)+'</td><td style="text-align:center;">'+checkiva2+'\
+								</td><td style="text-align:center;">'+checkServ2+'</td><td style="text-align:right;">';
+							inhtml+='<button class="btn btn-default btn-sm" onclick="VerificarEliminar('+row.id_local+",'"+row.formulado+"'"+');"><span class="glyphicon glyphicon-trash"></span></button>&nbsp;<button class="btn btn-default btn-sm" onclick="editProduct(\''+row.timespan+'\')" ><span class="glyphicon glyphicon-pencil"></span></button></td>\
+						\
+					</tr>\
 					';
-				
 				/*<td style="text-align:center"><input disabled type="checkbox" '+checkprfinal+'/></td><td style="text-align:center"><input disabled type="checkbox" '+checkmatprima+'/></td><td><span class="fa fa-edit" style="cursor:pointer;" onclick="EditarProducto('+row.id+');"></span></td></tr>';*/
 			}
+			inhtml+="</tbody></table>";
 			LlenarTablaProd(inhtml);
 		}
 		
@@ -486,8 +473,8 @@ function EditarProducto(idpr){
 
 function searchProduct(t){
 	buscar=$.trim(t.val());
-	$('div[clase="listProduct"]').css("display" , "none");
-	var todosLista=$('div[clase="listProduct"]');
+	$('tr[clase="listProduct"]').css("display" , "none");
+	var todosLista=$('tr[clase="listProduct"]');
 	//console.log(todosLista);
 	
 	var timespanc=$('#catsel').attr('data-selec');
@@ -520,14 +507,14 @@ function showCategory(t){
 	categoria=t.attr("categoria");
 	timespan=t.attr("timespan");
 	var filtro=$('#searchKeyword').val().toLowerCase();
-	$('div[clase="listProduct"]').css("display" , "none");
+	$('tr[clase="listProduct"]').css("display" , "none");
 	$('#catsel').html($(t).attr('categoria'));
 	$('#catsel').attr('data-selec',timespan);
 	if(categoria=='Seleccione una categoria'){
 		if(filtro==''){
-			$('div[clase="listProduct"]').css("display" , "block");
+			$('tr[clase="listProduct"]').css("display" , "");
 		}else{
-			var todosLista=$('div[clase="listProduct"]');
+			var todosLista=$('tr[clase="listProduct"]');
 			for(var t in todosLista){
 				var elprod=todosLista[t];
 				console.log($(elprod).attr('formulado'));
@@ -540,7 +527,7 @@ function showCategory(t){
 			}
 		}
 	}else{
-		var todosLista=$('div[clase="listProduct"]');
+		var todosLista=$('tr[clase="listProduct"]');
 		for(var t in todosLista){
 			var elprod=todosLista[t];
 			console.log($(elprod).attr('formulado'));

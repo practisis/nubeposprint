@@ -15,7 +15,7 @@
 		</table>
 		<hr/>
 		<div class="row">
-			<div class="col-xs-6"	>
+			<div class="col-xs-6">
 				<h4>Nombre</h4> 
 					<input style='display:none;' id='idproducto' name='idproducto'/>
 					<input class="form-control" type="text" autofocus=""  placeholder="Ingrese aquí el nombre de su producto " name='nombreproducto' id='nombreproducto' style="width:90%;" onkeydown='verbusquedaproductos()'/>
@@ -50,7 +50,7 @@
 			</div>
 			<div class="col-xs-4">
 				<h4> Precio (con imp.)  </h4>
-				<input style="width:100%;" class="form-control" type="number" autofocus="" id='precioConImpuestos'  placeholder="Precio con imp " readonly />
+				<input style="width:100%;" class="form-control" type="number" autofocus="" id='precioConImpuestos'  placeholder="Precio con imp" onchange='CalcularSinImpuestos();' />
 				<label style="color:red;display:none;" class="errorLabel">Ingrese un precio válido</label>
 			</div>
 		</div>
@@ -63,11 +63,11 @@
 			<div class="col-xs-6">
 				<div class="col-sm-6" align="left">
 				<h4> ¿Carga IVA? </h4> 
-				<input type="checkbox"  id='coniva' name="my-checkbox" checked class='impventa' data-id="1" data-value="0.12" data-size="mini">
+				<input type="checkbox"  id='coniva' name="my-checkbox" class='impventa' data-id="1" data-value="0.12" data-size="mini">
 				</div>
 				<div class="col-sm-6" align="left">
 				<h4> ¿Carga Servicio? </h4>
-				<input type="checkbox"  id='conservicio' name="my-checkbox"  checked class='impventa' data-id="2" data-value="0.1" data-size="mini">
+				<input type="checkbox"  id='conservicio' name="my-checkbox" class='impventa' data-id="2" data-value="0.1" data-size="mini">
 				</div>
 					<!--	<h4>Código de Barras</h4>
 			<div class="app">
@@ -85,10 +85,10 @@
 			<div class="col-xs-6">
 				
 				<div class="col-sm-6" align="left" >
-					<h4>¿Es inventariable?  </h4><input type="checkbox" id="mprima" name="my-checkbox" checked>
+					<h4>¿Es inventariable?  </h4><input type="checkbox" id="mprima" name="my-checkbox" data-size='mini' />
 				</div>
 				<div class="col-sm-6"  align="left" >
-					<h4>¿Producto de Venta? </h4><input type="checkbox" id='pfinal' name="my-checkbox" checked>
+					<h4>¿Producto de Venta? </h4><input type="checkbox" id='pfinal' name="my-checkbox"  data-size='mini' />
 				</div>
 			</div>
 			</div>
@@ -182,10 +182,10 @@
 		
 		</div>
 	-->
-	<script>
-			$("[name='my-checkbox']").bootstrapSwitch(); $("[name='my-checkbox']").css("width", "129px");
-			 $("[name='my-checkbox']").css("height", "30px");
-			</script>
+
+			
+				
+
 		<br/>
 		<!--
 		<div class="row"  align="left">
@@ -198,14 +198,14 @@
 		</div>
 	-->
 	</div>
-		
-					
-		<div id='jsoncomplete' style='display:none;'></div>
-		<div id='jsonSugerenciasProductos' style='display:none;'></div>
+<div id='jsoncomplete' style='display:none;'></div>
+<div id='jsonSugerenciasProductos' style='display:none;'></div>
 </div>
-
 <script>
 	$(document).ready(function(){
+		$("[name='my-checkbox']").bootstrapSwitch(); 
+		//$("[name='my-checkbox']").css("width", "129px");
+		//$("[name='my-checkbox']").css("height", "30px");
 		$('.color').each(function(){
 			$(this).click(function(){
 				$('.color').each(function(){
@@ -219,10 +219,20 @@
 			});
 		});
 		
-		$( "#precioproducto" ).blur(function() {
-			var precioHis = parseFloat($( "#precioproducto" ).val()).toFixed(4);
-			$( "#precioproducto" ).val(precioHis);
-			var iva = 0;
+		$( "#precioproducto" ).change(function() {
+			var precioHis = parseFloat($( "#precioproducto" ).val());
+			$( "#precioproducto" ).val(precioHis.toFixed(4).toString().replace(",","."));
+			var sumaimpuesto=1;
+			if($('#conservicio').is(":checked"))
+				sumaimpuesto+=0.10;
+				
+			if($('#coniva').is(":checked"))
+				sumaimpuesto+=0.12;
+				
+			var precioConImpuestos=(precioHis*sumaimpuesto).toFixed(2);
+			
+				
+			/*var iva = 0;
 			var servicioImpuesto = 0;
 			var estadoIva = $('#coniva').bootstrapSwitch('state'); 
 			var precioproducto = parseFloat($( "#precioproducto" ).val());
@@ -254,25 +264,27 @@
 			
 			else if (estadoIva == false && estadoServicio == false){
 				precioConImpuestos = parseFloat(precioproducto).toFixed(1)
-			}
+			}*/
 			$('#precioConImpuestos').val(precioConImpuestos);
-			
 		});
 		
 		//$('.soloFloat').on('blur',function(event,value){
 	    //alert($(this).val());
 			//intOrFloat(event,$(this).val());
 		//});
-	});
-	$('#coniva').on('switchChange.bootstrapSwitch',function(event,state){
-		jsonimpuestosventa();
+		$('#coniva').on('switchChange.bootstrapSwitch',function(event,state){
+			jsonimpuestosventa();
+		});
+		
+		$('#conservicio').on('switchChange.bootstrapSwitch',function(event,state){
+			jsonimpuestosventa();
+		});
 	});
 	
-	$('#conservicio').on('switchChange.bootstrapSwitch',function(event,state){
-		jsonimpuestosventa();
-	});
+	
 	
 	function jsonimpuestosventa(){
+		//alert('ahora');
 		var arrayimpventa=new Array();
 		var precioprod=parseFloat($('#precioproducto').val());
 		//var nuevoprecio=precioprod;
@@ -297,7 +309,7 @@
 		precioprod+=nuevoprecio1+nuevoprecio2;
 		//console.log(arrayimpventa);
 		console.log(precioprod);
-		$('#precioConImpuestos').val(precioprod.toFixed(1));
+		$('#precioConImpuestos').val(precioprod.toFixed(2));
 	}
 	function quebloque(quien){
 	  if(quien == 1){
@@ -317,12 +329,13 @@
 				WHERE p.timespan="'+editarProductoID+'"',[],function(tx,results){
 				console.log(results);
 				for (var i=0; i < results.rows.length; i++){
+					console.log(results);
 					var row=results.rows.item(i);
 					var estadoIva = row.cargaiva;
 					var estadoServicio = row.servicio;
 					var precioproducto = parseFloat(row.precio).toFixed(4);
 					//alert(estadoIva+'@'+estadoServicio);
-					if(estadoIva == 1 && estadoServicio == 1){
+					/*if(estadoIva == 1 && estadoServicio == 1){
 							precioConImpuestos = (parseFloat(precioproducto * 1.22).toFixed(1));
 						}
 						else if(estadoIva == 1 && estadoServicio == 0){
@@ -334,10 +347,19 @@
 						}
 						
 						else if (estadoIva == 0 && estadoServicio == 0){
-							precioConImpuestos = parseFloat(precioproducto).toFixed(1)
-						} 
+							precioConImpuestos = parseFloat(precioproducto).toFixed(2)
+						} */
 						
-					$('#precioConImpuestos').val(precioConImpuestos);
+					var sumaimpuestos=1;
+					if(estadoIva == 1)
+						sumaimpuestos+=0.12;
+					if(estadoServicio==1)
+						sumaimpuestos+=0.10;
+					
+					precioConImpuestos=parseFloat(precioproducto)*sumaimpuestos;
+					
+					
+					$('#precioConImpuestos').val(precioConImpuestos.toFixed(2));
 					$("#nombreproducto").val(row.formulado);
 					$("#titulonuevopr").html("Datos Producto " + row.formulado + "");
 					str=row.codigo;
@@ -354,10 +376,10 @@
 					$("#cantidadreal").val(row.cantidad);
 					//console.log("Ana"+row.color);
 					$("#colorproducto").val(row.color);
-					if(row.cargaiva==0||row.cargaiva==''||row.cargaiva==null) $("#coniva").click();
-					if(row.servicio==0||row.servicio==''||row.servicio==null) $("#conservicio").click();
-					if(row.productofinal==0) $("#pfinal").click();
-					if(row.materiaprima==0) $("#mprima").click();
+					if(row.cargaiva==1) $('#coniva').bootstrapSwitch('state', true, true);
+					if(row.servicio==1) $('#conservicio').bootstrapSwitch('state', true, true);
+					if(row.productofinal==1)  $('#pfinal').bootstrapSwitch('state', true, true);
+					if(row.materiaprima==1)  $('#mprima').bootstrapSwitch('state', true, true);
 					
 					var col=$("#colorproducto").val();
 					$('.color').each(function(){
@@ -517,6 +539,7 @@
 				matprima=1;
 			if($('#pfinal').prop('checked'))
 				prfinal=1;
+				
 				var rnd= Math.floor((Math.random() * 10000) + 1);
 				if($.trim(codigop)=='') codigop='nocode'+rnd;
 			
@@ -657,7 +680,7 @@
 					idcategoria=$('#idcategoria').val();
 					db.transaction(function(tx){
 					console.log('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+currentTimespanCategory+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+',servicio='+serv+' WHERE timespan='+idproducto+' AND NOT EXISTS(SELECT 1 FROM PRODUCTOS WHERE (formulado like "'+nombrep+'" or codigo like "'+codigop+'") and timespan!='+idproducto+');');
-					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+currentTimespanCategory+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+' WHERE timespan='+idproducto+' AND NOT EXISTS(SELECT 1 FROM PRODUCTOS WHERE (formulado like "'+nombrep+'" or codigo like "'+codigop+'") and timespan!="'+idproducto+'");',[],function(tx,results){
+					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+currentTimespanCategory+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+' ,sincronizar="true" WHERE timespan='+idproducto+' AND NOT EXISTS(SELECT 1 FROM PRODUCTOS WHERE (formulado like "'+nombrep+'" or codigo like "'+codigop+'") and timespan!="'+idproducto+'");',[],function(tx,results){
 					console.log("prod:"+idproducto);
 						/*if(costo != costoreal && costo != ''){
 						  tx.executeSql('UPDATE CARDEX SET precio_unidad='+costo+',ppq_real='+costo+' where id_formulado = '+idproducto,[],function(tx,resultsc){
@@ -693,7 +716,7 @@
 				idcategoria=$('#idcategoria').val();
 				console.log('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+idcategoria+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+',servicio='+serv+' WHERE timespan="'+idproducto + '"');
 				db.transaction(function(tx){
-					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+idcategoria+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+',servicio='+serv+' WHERE timespan="'+idproducto + '"',[],function(tx,results){
+					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+nombrep+'",codigo="'+codigop+'",precio='+preciop+',categoriaid="'+idcategoria+'",cargaiva='+iva+',productofinal='+prfinal+',materiaprima='+matprima+',ppq='+costo+',color='+micolor+',servicio='+serv+' ,sincronizar="true" WHERE timespan="'+idproducto + '"',[],function(tx,results){
 					console.log(results);
 					//VerDatosProducto(idproducto);
 					showalert("Datos Actualizados con éxito.");
@@ -761,5 +784,18 @@
 			else{
 				e.preventDefault();
 			}
-		}
+	}
+	
+	function CalcularSinImpuestos(){
+		var precioHis = parseFloat($( "#precioConImpuestos" ).val());
+		var sumaimpuesto=1;
+			if($('#conservicio').is(":checked"))
+				sumaimpuesto+=0.10;
+				
+			if($('#coniva').is(":checked"))
+				sumaimpuesto+=0.12;
+				
+			var precioConImpuestos=(precioHis/sumaimpuesto).toFixed(4);
+			$('#precioproducto').val(precioConImpuestos.toString().replace(",","."));
+	}
 </script>

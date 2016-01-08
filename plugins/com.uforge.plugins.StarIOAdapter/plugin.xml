@@ -25,10 +25,15 @@
 
             <config-file target="AndroidManifest.xml" parent="/manifest">
                 <uses-permission android:name="android.permission.BLUETOOTH" />
+				<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+				<uses-permission android:name="android.permission.INTERNET"/>
             </config-file>
-
+			
             <source-file src="src/android/StarIOAdapter.java" target-dir="src/com/uforge/plugins/" />
             <source-file src="src/android/PrinterFunctions.java" target-dir="src/com/uforge/plugins/" />
+            <source-file src="src/android/RasterDocument.java" target-dir="src/com/uforge/plugins/" />
+            <source-file src="src/android/StarBitmap.java" target-dir="src/com/uforge/plugins/" />
+			
 
         </platform>
 
