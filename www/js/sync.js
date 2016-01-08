@@ -115,7 +115,7 @@ var globalContProductosLocal=-1;
 	function sincronizarProcess2(){
 			empresa = localStorage.getItem('empresa');
 			obtenerDatosNube2(empresa);
-			muestraJSONLOCALCategorias();					
+			//muestraJSONLOCALCategorias();					
 	}
 
 
@@ -379,13 +379,17 @@ var globalContProductosLocal=-1;
 													//INSERT INTO PRODUCTOS(formulado,codigo,precio,tegoriaid) VALUES()
 													//alert("Se ha actualiado este producto>>" + formulado );
 													console.log("Updated " + formulado);
-													productosAbajo(json)
+													$.post(apiURL,{ KeyRequest : "deletesinc" , idbarras : barra_arriba,tabla:'formulados|formulados_precios',formulado: id}).done(function(data){
+														productosAbajo(json);
+													});
 												});
 											}else{
 												/*  Producto creado desde otro lado insertar con timespan */
 												tx.executeSql(' INSERT INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,timespan,materiaprima,servicio,estado) VALUES("'+formulado+'" , "'+formulado_codigo+'" , "'+precio+'" , "'+id_formulado_tipo+'" ,  "'+ivacomprareal+'" , "'+esproductofinal+'" , "'+timespan+'", "'+esmateriaprima+'" , "'+servicio+'", "'+activo+'" )  ' ,[],function(tx,results){
 													console.log("Created " + formulado);
-													productosAbajo(json)
+													$.post(apiURL,{ KeyRequest : "deletesinc" , idbarras : barra_arriba,tabla:'formulados|formulados_precios',formulado: id}).done(function(data){
+														productosAbajo(json);
+													});
 												});
 
 											}
