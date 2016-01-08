@@ -363,7 +363,7 @@ function getSearch(){
 			var anulada='No';
 			if(row.anulada==1)
 				anulada='Si';
-			inhtml+='<tr onclick="'+func+'" ><td>'+fechaformat+'</td><td>'+row.clientName+'</td><td>'+row.RUC+'</td><td>'+("000000000" + row.id).slice(-9)+'</td><td>'+anulada+'</td><td style="text-align:right;">'+totalf+'</td></tr>';
+			inhtml+='<tr onclick="" ><td>'+fechaformat+'</td><td>'+row.clientName+'</td><td>'+row.RUC+'</td><td>'+("000000000" + row.id).slice(-9)+'</td><td>'+anulada+'</td><td style="text-align:right;">'+totalf+'</td><td><button class="btn btn-default btn-sm" onclick="'+func+'"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>';
 		}
         inhtml+='<tr><td></td><td></td><td></td><td></td><td style="text-align: left;"><b>TOTAL$</b></td><td style="text-align:right;"><b>'+totalfinal.toFixed(2)+'</b></td></tr>';
         $('#totalencabezado').html(totalfinal.toFixed(2));
@@ -403,10 +403,10 @@ function getSearch(){
 }
 
 function LlenarTablaFacturas(datos){
-	$('#detailDiv').html("<table align='center' class='table table-hover table-striped'><tr><th>Fecha</th><th>Cliente</th><th>RUC</th><th># Factura</th><th>Anulada</th><th style='text-align:right;'>Total US</th>"+datos+"</table>");
+	$('#detailDiv').html("<table align='center' class='table table-hover table-striped'><tr><th>Fecha</th><th>Cliente</th><th>RUC</th><th># Factura</th><th>Anulada</th><th style='text-align:right;'>Total US</th><th style='text-align:right;width: 50px;'></th>"+datos+"</table>");
 }
 function LlenarTablaFacturasp(datosp){
-	$('#detailDiva').html("<div style='background-color: #FFFFFF;'><table align='right' class='table' style='width: 25%;'><tr><th colspan='2' style='text-align:center;'>Formas de Pago</th></tr>"+datosp+"</table><div>");
+	$('#detailDiva').html("<div style='background-color: #FFFFFF;'><table align='right' class='table' style='width: 25%;'><tr><th colspan='2' style='text-align:center;'>Formas de Pago</th><th style='text-align:right;width: 50px;'></th></tr>"+datosp+"</table><div>");
 }
 function LlenarTablaFacturasau(datosau){
 

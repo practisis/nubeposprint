@@ -35,9 +35,13 @@ function validateToken(){
     auxpass = pass;
 	$('#btnvalida2').html("<img src='images/loader.gif' width='20px'/>");
 	$.get(apiURL,{ idBarraSync : idBarraSync, TokenRequest : id_barra , id : quien , pass : pass  },function(data){
-				//$("#divdatoslogin").html('<h3>Accede a tu cuenta</h3>'+data);
-				var datosemp=data.split('|');
-				loginEmpresa(datosemp[0],datosemp[1]);
+	  var res = data.split("input");
+      if(res.length>2){
+	    $("#divdatoslogin").html('<h3>Accede a tu cuenta</h3>'+data);
+      }else{
+        var datosaux = data.split("|");
+        loginEmpresa(datosaux[0],datosaux[1]);
+      }
 	});
 }
 
@@ -124,25 +128,30 @@ var globalContProductosLocal=-1;
 	}
 	function saberIdBarra(jsonProductos){
 		obj=$.parseJSON(jsonProductos);
-		idBarraSync= obj.Productos[0].id_barra;
-		db.transaction(function(tx){
-		tx.executeSql('SELECT barra_arriba,id FROM empresa ',[],function(tx,results){
-					
-								for (var i=0; i <= results.rows.length-1; i++){
-									var row = results.rows.item(i);
-									var id = row.id;
-									barra_arriba = row.barra_arriba;
-								}
-								if(!barra_arriba){
-									
-										db.transaction(function(tx){
-										tx.executeSql('UPDATE empresa SET barra_arriba=?' ,[idBarraSync],function(tx,results){
-										});
-										},errorCB ,successCB);
+        console.log(obj.Productos[0]);
+        if(obj.Productos[0] != null){
+    		idBarraSync= obj.Productos[0].id_barra;
+    		db.transaction(function(tx){
+    		tx.executeSql('SELECT barra_arriba,id FROM empresa ',[],function(tx,results){
 
-								}
-		});
-		},errorCB ,successCB);
+    								for (var i=0; i <= results.rows.length-1; i++){
+    									var row = results.rows.item(i);
+    									var id = row.id;
+    									barra_arriba = row.barra_arriba;
+    								}
+    								if(!barra_arriba){
+
+    										db.transaction(function(tx){
+    										tx.executeSql('UPDATE empresa SET barra_arriba=?' ,[idBarraSync],function(tx,results){
+    										});
+    										},errorCB ,successCB);
+
+    								}
+    		});
+    		},errorCB ,successCB);
+        }else{
+          location.reload(true);
+        }
 	}
 		function existeCategoria(formulado_tipo,id_formulado_tipo,formulado_tipo_timespan){
 			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
@@ -372,18 +381,13 @@ var globalContProductosLocal=-1;
 													//INSERT INTO PRODUCTOS(formulado,codigo,precio,tegoriaid) VALUES()
 													//alert("Se ha actualiado este producto>>" + formulado );
 													console.log("Updated " + formulado);
-													$.post(apiURL,{ KeyRequest : "deletesinc" , idbarras : barra_arriba,tabla:'formulados|formulados_precios',formulado: id}).done(function(data){
-														productosAbajo(json);
-													});
-													//productosAbajo(json)
+													productosAbajo(json)
 												});
 											}else{
 												/*  Producto creado desde otro lado insertar con timespan */
 												tx.executeSql(' INSERT INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,timespan,materiaprima,servicio,estado) VALUES("'+formulado+'" , "'+formulado_codigo+'" , "'+precio+'" , "'+id_formulado_tipo+'" ,  "'+ivacomprareal+'" , "'+esproductofinal+'" , "'+timespan+'", "'+esmateriaprima+'" , "'+servicio+'", "'+activo+'" )  ' ,[],function(tx,results){
 													console.log("Created " + formulado);
-													$.post(apiURL,{ KeyRequest : "deletesinc" , idbarras : barra_arriba,tabla:'formulados|formulados_precios',formulado: id}).done(function(data){
-														productosAbajo(json);
-													});
+													productosAbajo(json)
 												});
 
 											}
@@ -1929,66 +1933,6 @@ function localCategoriaID(categoriaid){
 		});
 		
 		}
-		
-function registrarUser(){
-                newEmpresa=$("#newEmpresa").val();
-                newEmail=$("#newEmail").val();
-                newPass=$("#newPass").val();
-                newConfirm=$("#newConfirm").val();
-                if(newConfirm == newPass){
-                    nombre='User NubePOS';
-                    celular=0;
-                    email=0;
-                    passw=newPass;
-                    rpassw=newConfirm;
-                    empresa=newEmpresa;
-                    planPrecio=2;
-                    nTerminales=1;
-                    sistema=0;
-                    franquicia=0;
-                    pais=1;
-                    versiones=7;
-                    plan=0;
-                    $("#btnNewEmp").html('<img src="images/loader.gif"  width="50%" />');
-                    $.post("http://practisis.net/registro/registroNubePOS.php", { 
-                        nombre : nombre,
-                        celular : celular,
-                        email :newEmail,
-                        pass : newPass,
-                        rpass : newConfirm,
-                        empresa : empresa,
-                        planPrecio : planPrecio,
-                        nTerminales : nTerminales,
-                        sistema : sistema,
-                        pais : pais,
-                        franquicia : franquicia,
-                        versiones : versiones
-
-                    }).done(function(data){
-                        localStorage.setItem("userRegister", newEmail);
-                        localStorage.setItem("userPasswod", newPass);
-
-                        $("#btnNewEmp").html('Enviar');
-                        $("#demoGratis").css("display" , "none");
-                        $("#fadeRow").css("display" , "none");
-                        $("#putHereIframes").html(data);
-                        $("#putHereIframes").prepend("Procesando Petición");
-                        $("#fadeCloud").html("\
-                                <table width='100%' height='100%' cellpadding='0'  cellspacing='0'>\
-                                    <tr>\
-                                        <td valign='center' align='center' > \
-                                    <iframe src='views/cloud/timer.html' style='width:60%;height:50%;border:0px;' border='0' ></iframe>\
-                                        </td>\
-                                    </tr>\
-                                </table>\
-                                    ");
-                        $("#fadeCloud").fadeIn();
-                    });
-
-                }
-            }
-
-		
 		
 		
 		
