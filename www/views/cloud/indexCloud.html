@@ -1,4 +1,5 @@
 <script src="js/sync.js" ></script>
+
 	<div class="row">
 		<div class="col-xs-12">
 			<div id="yaConectado" style="display:none;width:60%;padding:0px;margin:0px;margin-top:80px;">
@@ -24,6 +25,8 @@
   	  		<center><a id="linklogin" href="" target="_blank" ><input class="btn btn-md btn-primary btn-center" type="button"  value="Abrir punto de venta en la nube" /> </a></center>
   	    </div>
 	</div>
+
+    <div class="alert alert-danger" role="alert" style="display: none;"></div>
 
 <div class="row" id="contentStepSincro" style="display:none;" >
 		<div class="col-md-3" ></div>
@@ -277,7 +280,573 @@
 		</table>	
 	</div>
 	-->
-<input type="hidden" id="idcategoria" />
+	<input type="hidden" id="idcategoria" />
+	
+	<script type="text/javascript">
+		
+		
+		
+		
+		
+		/* ------------ FIN (STEP 1.1) Sincronizacion Productos ---------- */
+		
+		
+		
+		/* ------------ (STEP 1.2) Sincronizacion Categorias ---------- */
+		
+		
+		
+		
+		
+		
+		
+		/* ------------ OLD FUNCTIONS ---------- */
+		function verificarEmpresas(){
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			db.transaction(function(tx){
+				tx.executeSql('SELECT COUNT(id) as cuantos FROM empresa',[],function(tx,res){
+					var existen=res.rows.item(0).cuantos;
+					console.log(existen);
+					if(existen>0){
+						$('#mainDivSinc').fadeIn('slow');
+						$('#cuentasSinc').css('display','none');
+						
+					}
+				});
+			
+			},errorCB,successCB);
+		}
+		
+		var page=0;
+		ListarCategorias();
+		getSearch();
+
+		function ListarProductos(){
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			db.transaction(function(tx){
+			tx.executeSql('SELECT p.*,c.categoria as nombrec FROM PRODUCTOS p,CATEGORIAS c WHERE p.categoriaid=c.id ORDER BY p.formulado ASC LIMIT 0,15;',[],function(tx,results){
+				//console.log(results.rows.length);
+				var inhtml='';
+				for (var i=0; i < results.rows.length; i++){
+					   var row = results.rows.item(i);
+					   var checkiva='';
+					   var checkprfinal='';
+					   var checkmatprima='';
+					   if(row.cargaiva==1)
+							checkiva='checked';
+					   if(row.productofinal==1)
+							checkprfinal='checked';
+					   if(row.materiaprima==1)
+							checkmatprima='checked';
+						var catname='';
+					   inhtml+='<tr><td>'+row.formulado+'</td><td>'+row.codigo+'</td><td>'+row.nombrec+'</td><td style="text-align:right">'+parseFloat(row.precio).toFixed(2)+'</td><td style="text-align:center"><input disabled type="checkbox" '+checkiva+'/></td><td><span class="fa fa-edit"></span></td></tr>';
+					   /*<td style="text-align:center"><input disabled type="checkbox" '+checkprfinal+'/></td><td style="text-align:center"><input disabled type="checkbox" '+checkmatprima+'/></td><td><span class="fa fa-edit"></span></td></tr>';*/
+				}
+				LlenarTablaProd(inhtml);
+				});
+			},errorCB,successCB);
+		}
+
+		function LlenarTablaProd(datos){
+			$('#detailDiv2').html("<table align='center' class='table'><tr><th>Nombre</th><th>Código</th><th>Categoría</th><th style='text-align:right;'>Precio</th><th style='text-align:center'>Aplica IVA</th><th><span class='fa fa-cog'></span></th>"+datos+"</table>");
+		}
+
+		function ListarCategorias(){
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			db.transaction(function(tx){
+			tx.executeSql('SELECT * FROM CATEGORIAS ORDER BY id asc;',[],function(tx,results){
+				//console.log(results.rows.length);
+				var inhtml='';
+				for (var i=0; i < results.rows.length; i++){
+					var row=results.rows.item(i);
+					inhtml+='<option value="'+row.id+'">'+row.categoria+'</option>';
+				}
+				LlenarComboCat(inhtml);
+			});
+			},errorCB,successCB);
+		}
+
+		function LlenarComboCat(options){
+			$('#listacategorias').append(options);
+		}
+		function getSearch(){
+			var filtro=$('#searchKeyword').val();
+			var categoria=$('#listacategorias').val();
+			var desde=15*page;
+			var queryextra=' p.id is not NULL';
+			if(filtro!='')
+				queryextra+=' and (p.formulado like "%'+filtro+'%" or p.codigo like "%'+filtro+'%")';
+			if(categoria!=0)
+				queryextra+=' and p.categoriaid='+categoria;
+
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			db.transaction(function(tx){
+				tx.executeSql('SELECT p.*,c.categoria as nombrec FROM PRODUCTOS p,CATEGORIAS c WHERE '+queryextra+' and p.categoriaid=c.id ORDER BY p.formulado asc',[],function(tx,result){
+					$('#paginacion').html('');
+					var npags=Math.ceil(result.rows.length/15);
+					$('#totalpags').val(npags);
+					$('#paginacion').append("<li onclick='CambiarPagina(-1);'><span class='enabled' id='atras'>&laquo;</span></li>");
+					for(var j=0;j<npags;j++){
+						var act='';
+						if(page==j)
+							act='active';
+						$('#paginacion').append("<li class='"+act+"' onclick='CambiarPagina("+parseInt(j)+");'><span class='enabled'>"+parseInt(j+1)+"</span></li>");
+					}
+					$('#paginacion').append("<li onclick='CambiarPagina(-2);'><span class='enabled' id='adelante'>&raquo;</span></li>");
+				});
+			},errorCB,successCB);
+			
+			
+			db.transaction(function(tx){
+			tx.executeSql('SELECT p.*,c.categoria as nombrec FROM PRODUCTOS p,CATEGORIAS c WHERE '+queryextra+' and p.categoriaid=c.id ORDER BY p.formulado desc LIMIT '+desde+',15;',[],function(tx,results){
+				//console.log(results);
+				var inhtml='';
+				for (var i=0; i < results.rows.length; i++){
+					var row = results.rows.item(i);
+					var checkiva='';
+					var checkprfinal='';
+					var checkmatprima='';
+					if(row.cargaiva==1)
+							checkiva='checked';
+					if(row.productofinal==1)
+							checkprfinal='checked';
+					if(row.materiaprima==1)
+							checkmatprima='checked';
+					var catname='';
+					inhtml+='<tr><td>'+row.formulado+'</td><td>'+row.codigo+'</td><td>'+row.nombrec+'</td><td style="text-align:right">'+parseFloat(row.precio).toFixed(2)+'</td><td style="text-align:center"><input disabled type="checkbox" '+checkiva+'/></td><td><span class="fa fa-edit" style="cursor:pointer;" onclick="EditarProducto('+row.id_local+');"></span></td></tr>';
+					/*<td style="text-align:center"><input disabled type="checkbox" '+checkprfinal+'/></td><td style="text-align:center"><input disabled type="checkbox" '+checkmatprima+'/></td><td><span class="fa fa-edit" style="cursor:pointer;" onclick="EditarProducto('+row.id+');"></span></td></tr>';*/
+				}
+				LlenarTablaProd(inhtml);
+			});
+			},errorCB,successCB);
+		}
+
+		function CambiarPagina(arg){
+			//console.log($('#totalpags').val());
+			if(arg==-1){
+				if((page-1)>=0){
+					page--;
+					getSearch();
+				}
+			}else if(arg==-2){
+				//console.log($('#totalpags').val());
+				if((page+1)<parseInt($('#totalpags').val())){
+					page++;
+					getSearch();
+				}
+			}else{
+				page=arg;
+				getSearch();
+			}
+			
+		}
+
+		function EditarProducto(idpr){
+			$('#content').load("views/productos/nuevoproducto.html",function(){
+				VerDatosProducto(idpr);
+			});
+		}
+
+		$(document).keyup(function(event){
+			if(event.keyCode === 13){
+				getSearch();
+				}
+		});
+
+			function subeDatos(){
+				$('#myModal').modal('show');
+				var db2 = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				var miqueryFac='SELECT p.*,c.categoria as nombrec , c.id as idcat FROM PRODUCTOS p,CATEGORIAS c WHERE p.categoriaid=c.id ORDER BY p.formulado ASC';
+				//alert(miqueryFac);
+				var empresa = localStorage.getItem('empresa');
+				console.log(empresa)
+				db2.transaction(function(tx){
+				tx.executeSql(miqueryFac,[],function(tx,results){
+					//alert(results);
+					var inhtml='';
+					for (var i=0; i < results.rows.length; i++){
+						var row = results.rows.item(i);
+						var formulado = row.formulado;
+						var codigo = row.codigo;
+						var precio = row.precio;
+						var categoriaid = row.idcat;
+						var categorianombre = row.nombrec;
+						var cargaiva = row.cargaiva;
+						var productofinal = row.productofinal;
+						var materiaprima = row.materiaprima;
+						//alert(formulado +'@'+ categoriaid +'@'+ empresa);
+						$.post('http://practisis.net/practipos2/ajax/apiSincronizador/apiSincronizaNubeposProductos.php',{
+							empresa : empresa , formulado : formulado , codigo : codigo , precio : precio , categorianombre : categorianombre , cargaiva : cargaiva , productofinal : productofinal , materiaprima : materiaprima
+						}).done(function(data){
+							console.log(data);
+						});
+						
+					}
+					
+				});
+				},errorCB,successCB);
+				
+				setTimeout(function() {
+				console.log('bajara');
+					subeClientes();
+					console.log('facturas')
+					subeFacturas();
+				}, 3000);
+				
+			}
+			
+			
+			
+			function subeClientes(){
+				var db2 = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				var miqueryFac='select * from CLIENTES order by id ASC';
+				//alert(miqueryFac);
+				var empresa = localStorage.getItem('empresa');
+				//console.log(empresa)
+				db2.transaction(function(tx){
+				tx.executeSql(miqueryFac,[],function(tx,results){
+					//alert(results);
+					var inhtml='';
+					for (var i=0; i < results.rows.length; i++){
+						var row = results.rows.item(i);
+						var id = row.id;
+						var nombre = row.nombre;
+						var cedula = row.cedula;
+						var email = row.email;
+						var direccion = row.direccion;
+						var telefono = row.telefono;
+						//alert(formulado +'@'+ categoriaid +'@'+ empresa);
+						$.post('http://practisis.net/practipos2/ajax/apiSincronizador/apiSincronizaNubeposClientes.php',{
+							id : id , nombre : nombre , cedula : cedula , email : email , direccion : direccion , telefono : telefono , empresa : empresa
+						}).done(function(data){
+							console.log(data);
+						});
+						
+					}
+					
+				});
+				},errorCB,successCB);
+				
+				setTimeout(function() {
+					console.log('facturas')
+					subeFacturas();
+				}, 3000);
+			}
+			
+			
+			function subeFacturas(){
+				var db2 = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				var empresa = localStorage.getItem('empresa');
+				var miqueryFac='SELECT * from FACTURAS where aux = ? order by id ASC';
+				db2.transaction(function(tx){
+				tx.executeSql(miqueryFac,[0],function(tx,resultsfact){
+					//alert(results);
+					//var existenD=resultsfact.rows.item(0).cuantos;
+					//if(existenD>0){
+						var inhtml='';
+						for (var i=0; i < resultsfact.rows.length; i++){
+								var rowfact = resultsfact.rows.item(i);
+								var id = rowfact.id;
+								console.log(id);
+								enviaFacturas(id);
+							}
+					//}
+				});
+				},errorCB,successCB);
+			}
+			function enviaFacturas(id){
+				console.log(id);
+				var db2 = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				var empresa = localStorage.getItem('empresa');
+				var miqueryFac='SELECT * from FACTURAS where aux = ? and id = ? order by id ASC';
+				db2.transaction(function(tx){
+				tx.executeSql(miqueryFac,[0 , id ],function(tx,resultsfact){
+					//alert(results);
+					var inhtml='';
+					for (var i=0; i < resultsfact.rows.length; i++){
+							var rowfact = resultsfact.rows.item(i);
+							var id = rowfact.id;
+							var clientName = rowfact.clientName;
+							var ruc = rowfact.RUC;
+							var address = rowfact.address;
+							var tele = rowfact.tele;
+							var fetchJson = rowfact.fetchJson; 
+							var paymentsUsed = rowfact.paymentsUsed;
+							var cash = rowfact.cash;
+							var cards = rowfact.cards;
+							var cheques = rowfact.cheques;
+							var valueCxC = rowfact.valueCxC;
+							var paymentConsumoInterno = rowfact.paymentConsumoInterno;
+							var fecha = rowfact.fecha;
+							//alert(fetchJson);
+							$.post('http://practisis.net/sandbox/practipos2/ajax/apiSincronizador/apiSincronizaNubepos.php',{
+								fetchJson : fetchJson , empresa : empresa , id : id , fecha : fecha
+							}).done(function(data){
+								console.log(data);
+								var datos = data.split("@");
+								var id = datos[0];
+								console.log(id);
+								var idreal = datos[1];
+								console.log(idreal);
+								var db2 = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+								db2.transaction(function(tx){
+								tx.executeSql('update FACTURAS set aux = ? where id = ?',[idreal , id],function(tx,results){
+									console.log(results);
+								});
+								},errorCB,successCB);
+								setTimeout(function() {
+									console.log('bajadaaaaa');
+									enviaConsultaApi2(empresa); 
+								}, 3000);
+							});
+						}
+						
+						//console.log(fetchJson);
+						
+						
+					
+				});
+				},errorCB,successCB);
+			}
+			function enviaConsultaApi2(id){
+				var id_emp = id
+				$.post('https://www.practisis.net/nubeposboot/www/ajax/dataservice.php',{
+					id_emp : id_emp 
+				}).done(function(response){
+					console.log(response);
+					var arraydatos=JSON.parse(response); 
+					//alert(response);
+					$('#empresaName').html(arraydatos.empresa.nombre);
+					$('#nemp').html("Emp. "+arraydatos.empresa.num);
+					$('#jsonProductos').html(arraydatos.productos);
+					$('#jsonCategorias').html(arraydatos.categorias);
+					$('#jsonformaspago').html(arraydatos.formaspago);
+					$('#jsonmisclientes').html(arraydatos.clientes);
+					$('#jsoncaja').html(arraydatos.cajas);
+					$('#loginPractisis').fadeOut('fast');
+					Ingresaproductos2();
+					IngresaCategorias2();
+					IngresaClientes2();
+					//console.log(arraydatos);
+				});
+			}
+			
+			function Ingresaproductos2(){
+				 var json = $('#jsonProductos').html();
+					var mijson = eval(''+json+'');
+					for(var j in mijson){
+						for(var k in mijson[j]){
+							for(i = 0; i < mijson[j][k].length; i++){
+									var item = mijson[j][k][i];
+									InsertaProducto2(item);
+							}
+						}
+					}
+			}
+			
+			function InsertaProducto2(itempr){
+				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				var cargaiva=0;
+				var imp=itempr.formulado_tax_id.split('|');
+				
+				if(imp.indexOf("1")>=0)
+					cargaiva=1;
+				var nombreFormulado = itempr.formulado_nombre;
+				//console.log(nombreFormulado);
+				
+				var miqueryProd="SELECT * FROM PRODUCTOS  where lower(formulado) =  lower('"+nombreFormulado+"') ORDER BY id asc";
+				//console.log(miqueryProd);
+				db.transaction(function(tx){
+				tx.executeSql(miqueryProd,[],function(tx,results){
+					console.log(results.rows.length +'@'+ nombreFormulado);
+					if(results.rows.length > 0 ){
+						console.log('no ingresara este producto:     ' + nombreFormulado);
+					}else{
+						db.transaction(
+						function (tx){
+								tx.executeSql('INSERT INTO PRODUCTOS (id,formulado,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima) VALUES (?,?,?,?,?,?,?,?);',[itempr.formulado_id,itempr.formulado_nombre,itempr.formulado_codigo,itempr.formulado_precio,itempr.formulado_tipo,cargaiva,1,itempr.formulado_matprima],
+								function(tx,res){
+									console.log("producto insertado:"+res.insertId)
+								});				
+						},errorCB,successCB);
+					}
+					
+				});
+				},errorCB,successCB);
+				
+					
+			}
+			
+			function IngresaCategorias2(){
+				var json = $('#jsonCategorias').html();
+					var mijson = JSON.parse(json);
+					//alert(mijson);
+					for(var j in mijson){
+						for(var k in mijson[j]){
+								var item=mijson[j][k];
+								metedatoscat2(item);
+						}
+					}
+			}
+				
+			function metedatoscat2(itemc){
+				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				var categoria_nombre = itemc.categoria_nombre; 
+				
+				var miqueryCat="SELECT * FROM CATEGORIAS  where lower(categoria) =  lower('"+categoria_nombre+"') ORDER BY id asc";
+				
+				
+				db.transaction(function(tx){
+				tx.executeSql(miqueryCat,[],function(tx,results){
+					console.log(results.rows.length +'@'+ categoria_nombre);
+					if(results.rows.length > 0 ){
+						console.log('no ingresara esta categoria:     ' + categoria_nombre);
+					}else{
+						db.transaction(
+						function (tx){
+							tx.executeSql('INSERT INTO CATEGORIAS(id,categoria,activo,existe)VALUES(?,?,?,?);',[itemc.categoria_id,itemc.categoria_nombre,1,1],
+							function(tx,res){
+								console.log(res);
+								console.log("Categoria ingresada :"+res.insertId+"  categorias");
+							});				
+						},errorCB,successCB);
+					}
+					
+				});
+				},errorCB,successCB);
+				
+			}
+				
+			function IngresaClientes2(){
+				var json = $('#jsonmisclientes').html();
+					var mijson = JSON.parse(json);
+					//console.log(mijson);
+					for(var j in mijson){
+						for(var k in mijson[j]){
+								var item=mijson[j][k];
+								metedatoscliente2(item);
+						}
+					}
+			}
+				
+			function metedatoscliente2(itemc){
+				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			
+				var cedula = itemc.cedula; 
+				
+				var miqueryCli="SELECT * FROM CLIENTES  where lower(cedula) =  lower('"+cedula+"') ORDER BY id asc";
+				
+				
+				db.transaction(function(tx){
+				tx.executeSql(miqueryCli,[],function(tx,results){
+					console.log(results.rows.length +'@'+ cedula);
+					if(results.rows.length > 0 ){
+						console.log('no ingresara este cliente:     ' + cedula);
+					}else{
+						
+						db.transaction(
+							function (tx){
+										tx.executeSql('INSERT INTO CLIENTES(id,nombre,cedula,telefono,direccion,email,existe)VALUES(?,?,?,?,?,?,?);',[itemc.id,itemc.nombre,itemc.cedula,itemc.telefono,itemc.direccion,itemc.email,1],
+										function(tx,res){
+											//console.log(res);
+											console.log("Cliente:  "+res.insertId+"clientes");
+										});				
+							},errorCB,successCB);
+					}
+					
+				});
+				},errorCB,successCB);
+				$('#myModal').modal('hide');
+			}
+			//$("#fadeRow").fadeIn("slow");
+			function registrarUser(){
+				newEmpresa=$("#newEmpresa").val();
+				newEmail=$("#newEmail").val();
+				newPass=$("#newPass").val();
+				newConfirm=$("#newConfirm").val();
+                var expr = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                if(newEmpresa==''){
+                  $('.alert-danger').fadeIn('slow');
+                  $(".alert-danger").html('Debe ingresar el nombre de tu negocio.');
+                  $("#newEmpresa").val('');
+                  setTimeout(function(){ $('.alert-danger').fadeOut('slow'); }, 3000);
+                }else if(newEmail=='' || !expr.test(newEmail)){
+                  $('.alert-danger').fadeIn('slow');
+                  $(".alert-danger").html('Debe ingresar un e-mail valido para tu negocio.');
+                  $("#newEmail").val('');
+                  setTimeout(function(){ $('.alert-danger').fadeOut('slow'); }, 3000);
+                }else{
+    				if(newConfirm == newPass){
+    					nombre='User NubePOS';
+    					celular=0;
+    					email=0;
+    					passw=newPass;
+    					rpassw=newConfirm;
+    					empresa=newEmpresa;
+    					planPrecio=2;
+    					nTerminales=1;
+    					sistema=0;
+    					franquicia=0;
+    					pais=1;
+    					versiones=7;
+    					plan=0;
+    					$("#btnNewEmp").html('<img src="images/loader.gif"  width="50%" />');
+    					$.post("http://practisis.net/registro/registroNubePOS.php", {
+    						nombre : nombre,
+    						celular : celular,
+    						email :newEmail,
+    						pass : newPass,
+    						rpass : newConfirm,
+    						empresa : empresa,
+    						planPrecio : planPrecio,
+    						nTerminales : nTerminales,
+    						sistema : sistema,
+    						pais : pais,
+    						franquicia : franquicia,
+    						versiones : versiones
+
+    					}).done(function(data){
+                          if(data=='existe'){
+                            $('.alert-danger').fadeIn('slow');
+                            $(".alert-danger").html('El correo ingresado ya existe en el sistema, vuelva a ingresar otro correo.');
+                            $("#newEmail").val('');
+                            setTimeout(function(){ $('.alert-danger').fadeOut('slow'); }, 3000);
+    					  }else{
+        						localStorage.setItem("userRegister", newEmail);
+        						localStorage.setItem("userPasswod", newPass);
+
+        						$("#btnNewEmp").html('Enviar');
+        						$("#demoGratis").css("display" , "none");
+        						$("#fadeRow").css("display" , "none");
+        						$("#putHereIframes").html(data);
+        						$("#putHereIframes").prepend("Procesando Petición");
+        						$("#fadeCloud").html("\
+        								<table width='100%' height='100%' cellpadding='0'  cellspacing='0'>\
+        									<tr>\
+        										<td valign='center' align='center' > \
+        									<iframe src='views/cloud/timer.html' style='width:60%;height:50%;border:0px;' border='0' ></iframe>\
+        										</td>\
+        									</tr>\
+        								</table>\
+        									");
+        						$("#fadeCloud").fadeIn();
+                            }
+    					});
+
+    				}else{
+    				  $('.alert-danger').fadeIn('slow');
+                      $(".alert-danger").html('Las contraseñas son distintas.');
+                      $("#newPass").val('');
+    				  $("#newConfirm").val('');
+                      setTimeout(function(){ $('.alert-danger').fadeOut('slow'); }, 3000);
+    				}
+                }
+			}
+			$(".putHeightRows").css("height" , $(window).height() + "px");
+				
+	</script>
+
+
 <script>
 		var loopSicnronizador;
 		var yaConectado=false;
@@ -292,7 +861,6 @@
 		GlobalLocalClient=0;
 												
 			if(userRegister){
-				//desencadena el login automáticamente solo cuando se crea una empresa
 				localStorage.setItem("userRegister", '');
 				localStorage.setItem("userPasswod", '');
 				$("#user2").val(userRegister);
@@ -301,7 +869,7 @@
 				validateToken();
 				
 			}else{
-				
+		
 				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 						db.transaction(function(tx){
 					tx.executeSql('SELECT nombreempresa FROM empresa',[],function(tx,results){
@@ -310,9 +878,8 @@
 									var row = results.rows.item(i);
 									var nombreempresa = row.nombreempresa;
 								}
-									
 									if(nombreempresa){
-										//la empresa está creada y me logueo siempre
+										
 										yaConectado=true;
 										$(".putEmp").html(""+nombreempresa+ "<small>("+empresa+")</small>");
 										$("#yaConectado").fadeIn();
@@ -323,12 +890,12 @@
 
 										clearInterval(loopSicnronizador);
 										loopSicnronizador=setTimeout(function(){
-											loginEmpresa(empresa,nombreempresa);
+
+											loginEmpresa(empresa,nombreempresa)
 										},3000);
 
 									//loginEmpresa(empresa,nombreempresa);
 									}else{
-										//no tengo cuenta muestra la forma de nueva cuenta
 										yaConectado=false;
 										nuevaCuenta();
 									}
