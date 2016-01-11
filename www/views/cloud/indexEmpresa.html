@@ -1,4 +1,4 @@
-	<style>
+<style>
 		.inputs{
 			width:100%;
 			border:1px solid #ccc;
@@ -11,42 +11,23 @@
 			resize:none;
 		}
 	</style>
-	<div class='panel' id='nohayEmp'>
-		<div  class="row" >
-			<div class='col-xs-1' style='background-color:#f3f3f3 !important;'></div>
-			<div class='col-xs-10'>
-				<div class="panel panel-default" style="padding:15px;">
-					<div class="modal-content text-center" id="contentLogin" style="min-height: 263px;">
-						<div class="modal-header" style="background-image: url('images/parallax-bg.jpg');padding-top: 35px;padding-bottom: 35px;color: #fff;border-radius: 4px 4px 0 0;background-position: center top;font-size: 40px;    padding: 15px;border-bottom: 1px solid #e5e5e5;min-height: 16.42857143px;">
-						  NubePOS
-						</div>
-						<div class="modal-body" style="min-height: 266px;">
-							<div id="divdatoslogin" style="overflow:auto;">
-							<h3 style="-webkit-margin-before: 1em;-webkit-margin-after: 1em;-webkit-margin-start: 0px;-webkit-margin-end: 0px;">Por Favor Ingresa a la pestaña de Cloud y <span style="color:#0893d2;">Empecemos!</span></h3>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class='col-xs-1' style='background-color:#f3f3f3 !important;'></div>
-		</div>
-	</div>
 	<div class='panel' id='sihayEmp'>
 		<div  class="row" >
+			<div class="col-sm-12">
+				<h2 style="margin-left:15px;">Informacion de tu Empresa</h2>
+				<hr color="gray" />
+			</div>
+			
 			<div class='col-xs-1'></div>
 			<div class='col-xs-10'>
 				<div class="panel panel-default" style="padding:15px;">
+					<div class="alert alert-danger" style='display:none;' id='campos'>
+						Todos los campos requeridos
+					</div>
+					<div class="alert alert-success" style='display:none;' id='msjOk'>
+						
+					</div>
 					<table class='table' style='width:80%;align:center !important;'>
-						<tr> 
-							<th>
-								Nombre Solicitante : 
-							</th>
-							<td>
-								<input type='text' id='nombreSoli' placeholder='Nombre Solicitante' class='inputs'/>
-								<input type='hidden' id='id'/>
-								<input type='hidden' id='dbname'/>
-							</td>
-						</tr>
 						<tr>
 							<th>
 								Nombre Establecimiento : 
@@ -96,20 +77,11 @@
 							</td>
 						</tr>
 						<tr>
-							<th>
-								Observaciones : 
-							</th>
-							<td>
-								<textarea id='obs' placeholder='Observaciones...' class='inputs'></textarea>
-							</td>
-						</tr>
-						<tr>
 							<td colspan='2' align='center' style='text-align:center;'>
 								<center>
-									<button type="button" class="btn btn-primary" style='display:none;' id='actualiza' onclick='actualizar()'>Actualizar</button>
-									<button type="button" class="btn btn-primary" style='display:;' id='graba' onclick='grabar()'>Grabar</button>
+									<button type="button" class="btn btn-success" style='display:none;' id='actualiza' onclick='actualizar()'>Actualizar</button>
+									<button type="button" class="btn btn-success" style='display:;' id='graba' onclick='grabar()'>Guardar</button>
 									<br/>
-									<div id='msjOk'></div>
 								</center>
 							</td>
 						</tr>
@@ -118,118 +90,142 @@
 			</div>
 			<div class='col-xs-1'></div>
 		</div>
-		<div  class="row" >
+		<!---<div  class="row" >
 			<div class='col-xs-1'></div>
 			<div class='col-xs-10'>
 				<div class="panel panel-default" style="padding:15px;">
 					<button type="button" class="btn btn-primary" onclick="window.open('centvia://?udn=Impresion&utt=NubePOS&cru=nubeposv%3a%2f%2f&cruf=nubeposv%3a%2f%2f&c_=!+0+200+200+540+1%0d%0aTEXT+4+0+20+10+Prueba+de+Impresion%0d%0aTEXT+7+0+20+60+NubePOS%0d%0aENDML%0d%0aCONCAT+250+300%0d%0aENDCONCAT%0d%0a%0d%0aPRINT%0d%0a','_blank');">Probar Impresora</button>
 				</div>
 			</div>
-		</div>
+		</div>-->
 	</div>
 <script type="text/javascript">
 	$( document ).ready(function() {
 		saberDatosEmpresa();
 	});
 	function actualizar(){
-		var id = $('#id').val();
-		var nombreSoli = $('#nombreSoli').val();
 		var nombreEsta = $('#nombreEsta').val();
 		var razon = $('#razon').val();
 		var ruc = $('#ruc').val();
 		var tel = $('#tel').val();
 		var email = $('#email').val();
 		var dir = $('#dir').val();
-		var obs = $('#obs').val();	
-		var dbname = $('#dbname').val();
-		var identificador = 'actualizar';
 		
-		$.post('https://www.practisis.net/apis/nubepos/actualizaFormulario.php',{
-			dbname : dbname , id : id , nombreSoli : nombreSoli , nombreEsta : nombreEsta , razon : razon , 
-			tel : tel , email : email , dir : dir , obs : obs , identificador : identificador , ruc : ruc
-		}).done(function(data){
-			$('#msjOk').html(data);
-		});
+		if(nombreEsta == '' ){
+			$('#nombreEsta').effect('highlight');
+		}
+		
+		if(razon == '' ){
+			$('#razon').effect('highlight');
+		}
+		
+		if(ruc == '' ){
+			$('#ruc').effect('highlight');
+		}
+		if( tel == '' ){
+			$('#tel').effect('highlight');
+		}
+		if(email == '' ){
+			$('#email').effect('highlight');
+		}
+		if(dir == '' ){
+			$('#dir').effect('highlight');
+		}
+		
+		if(nombreEsta == '' || razon == '' || ruc == '' || tel == '' || email == '' || dir == '' ){
+			$('#campos').fadeIn('slow');
+			$('#msjOk').css('display','none');
+			setTimeout(function() {
+				$('#campos').fadeOut('slow');
+			}, 3000);
+		}else{
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			db.transaction(function (tx){
+				tx.executeSql('update CONFIG set nombre = "'+nombreEsta+'" , razon = "'+razon+'", ruc = '+ruc+' , telefono = '+tel+', email = "'+email+'", direccion = "'+dir+'"');
+				$('#msjOk').html('Informacion actualizada con Éxito');
+				$('#msjOk').fadeIn('slow');
+				$('#campos').css('display','none');
+				setTimeout(function() {
+					$('#msjOk').fadeOut('slow');
+				}, 3000);
+			},errorCB,successCB);
+		}
+		
 	}
 	function grabar(){
-		var nombreSoli = $('#nombreSoli').val();
 		var nombreEsta = $('#nombreEsta').val();
 		var razon = $('#razon').val();
 		var ruc = $('#ruc').val();
 		var tel = $('#tel').val();
 		var email = $('#email').val();
 		var dir = $('#dir').val();
-		var obs = $('#obs').val();	
-		var dbname = $('#dbname').val();
-		var identificador = 'nuevo';
 		
+		if(nombreEsta == '' ){
+			$('#nombreEsta').effect('highlight');
+		}
 		
-		$.post('https://www.practisis.net/apis/nubepos/actualizaFormulario.php',{
-			dbname : dbname , nombreSoli : nombreSoli , nombreEsta : nombreEsta , razon : razon , 
-			tel : tel , email : email , dir : dir , obs : obs , identificador : identificador , ruc : ruc
-		}).done(function(data){
-			$('#msjOk').html(data);
-		});
+		if(razon == '' ){
+			$('#razon').effect('highlight');
+		}
+		
+		if(ruc == '' ){
+			$('#ruc').effect('highlight');
+		}
+		if( tel == '' ){
+			$('#tel').effect('highlight');
+		}
+		if(email == '' ){
+			$('#email').effect('highlight');
+		}
+		if(dir == '' ){
+			$('#dir').effect('highlight');
+		}
+		
+		if(nombreEsta == '' || razon == '' || ruc == '' || tel == '' || email == '' || dir == '' ){
+			$('#campos').fadeIn('slow');
+			$('#msjOk').css('display','none');
+			setTimeout(function() {
+				$('#campos').fadeOut('slow');
+			}, 3000);
+		}else{
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			db.transaction(function (tx){
+				tx.executeSql('INSERT INTO CONFIG(nombre , razon , ruc , telefono , email , direccion) VALUES("'+nombreEsta+'" , "'+razon+'" , '+ruc+' , '+tel+' , "'+email+'" , "'+dir+'")');
+				$('#msjOk').html('Informacion Ingresada con Éxito');
+				$('#msjOk').fadeIn('slow');
+				$('#campos').css('display','none');
+				setTimeout(function() {
+					$('#msjOk').fadeOut('slow');
+				}, 3000);
+			},errorCB,successCB);
+		}
 	}
 	function saberDatosEmpresa(){
 		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 		db.transaction(function(tx){
-			var excluir = 0;
-			tx.executeSql('SELECT * from empresa ',[],function(tx,res){
-				if(res.rows.length>0){
-					//alert('si');
-					$('#nohayEmp').css('display','none');
-					$('#sihayEmp').fadeIn('slow');
-					for (var i=0; i < res.rows.length; i++){
-						var row = res.rows.item(i);
-						var dbname = row.nombre;
-						console.log(dbname);
-						$('#dbname').val(dbname);
-						$.post('https://www.practisis.net/apis/nubepos/obtenerFormularioEmpresa.php',{
-							dbname : dbname
-						}).done(function(json){
-							if($.trim(json)=='error'){
-								$('#graba').css('display','block');
-								$('#actualiza').css('display','none');
-							}else if($.trim(json)!='error'){
-							console.log(json);
-								$('#graba').css('display','none');
-								$('#actualiza').css('display','block');
-								var obj=jQuery.parseJSON(json);
-								for(i=0; i<= (obj.formulario.length -1); i++){
-									var id= obj.formulario[i].id;
-									var nombre_solicitante= obj.formulario[i].nombre_solicitante;
-									var nombre_establecimiento= obj.formulario[i].nombre_establecimiento;
-									var razon_social= obj.formulario[i].razon_social;
-									var numero_ruc= obj.formulario[i].numero_ruc;
-									var numero_telefono= obj.formulario[i].numero_telefono;
-									var email= obj.formulario[i].email;
-									var direccion= obj.formulario[i].direccion;
-									var observacion= obj.formulario[i].observacion;
-									$('#id').val(id);
-									$('#nombreSoli').val(nombre_solicitante);
-									$('#nombreEsta').val(nombre_establecimiento);
-									$('#razon').val(razon_social);
-									$('#ruc').val(numero_ruc);
-									$('#tel').val(numero_telefono);
-									$('#email').val(email);
-									$('#dir').val(direccion);
-									$('#obs').val(observacion);
-								}
-							}
-						});
+			tx.executeSql('SELECT * from CONFIG ',[],function(tx,results){
+				if(results.rows.length>0){
+					for (var i=0; i < results.rows.length; i++){
+						var row = results.rows.item(i);
+						var nombre = row.nombre;
+						var razon = row.razon;
+						var ruc = row.ruc;
+						var telefono = row.telefono;
+						var email = row.email;
+						var direccion = row.direccion;
+						
+						$('#nombreEsta').val(nombre);
+						$('#razon').val(razon);
+						$('#ruc').val(ruc);
+						$('#tel').val(telefono);
+						$('#email').val(email);
+						$('#dir').val(direccion);
 					}
+					$('#actualiza').css('display','block');
+					$('#graba').css('display','none');
 				}else{
-					//alert('no');
-					$('#sihayEmp').css('display','none');
-					$('#nohayEmp').fadeIn('slow');
-					setTimeout(function() {
-						$('#cloudIndex').effect('highlight');
-					}, 1500);
-					setTimeout(function() {
-						$('#cloudIndex').effect('highlight');
-					}, 1800);
-
+					$('#actualiza').css('display','none');
+					$('#graba').css('display','block');
 				}
 			});
 		},errorCB,successCB);

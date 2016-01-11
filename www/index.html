@@ -17,6 +17,7 @@
 			<script src="js/raphael-min.js"></script>
 			<script src="js/morris.min.js"></script>
 			<script src="js/bootstrap.min.js"></script>
+			<script src="js/sync.js"></script>
 			<link href="css/fonts.css" rel="stylesheet" type="text/css">
 			<link href="css/formated.css" rel="stylesheet" type="text/css">
 			<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
@@ -117,7 +118,7 @@
 			  </div>
 			</nav><br/><br/>
 			<div class='container-fluid' style='margin-top:5px;'>
-				<div id='deviceid' style='display:none;'></div>
+				<div id='deviceid' style='display:none;'>a383bc4552bfb701f96a17a4541b5565</div>
 				<div class="alert alert-success" role="alert" id='alert' style='display:none;'></div>
 				<div class='row'>
 					<div class='col-lg-12 col-md-12 col-sm-12 ui-mobile'>
@@ -423,14 +424,15 @@
 				id_barra=uuid;
 				$('#deviceid').html(uuid);
 			});
-			$( document ).ready(function() {
-				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			$( document ).ready(function(){
+				SyncStart();
+				/*var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 				db.transaction(function(tx){
 					tx.executeSql('SELECT * FROM PRODUCTOS WHERE id_local !=-1 and estado=1;',[],function(tx,resulta){
 						if(resulta.rows.length==0){
 
-                            var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-        						db.transaction(function(tx){
+                
+        					db.transaction(function(tx){
         					tx.executeSql('SELECT nombreempresa FROM empresa',[],function(tx,results){
 
         								for (var i=0; i <= results.rows.length-1; i++){
@@ -457,7 +459,7 @@
 							$('#myDash').css('display','none');
 						}
 					},errorCB,successCB);
-				});
+				});*/
 
 				var alto = $( window ).height();
 				$('#contieneMensajes').css('height',alto);

@@ -1,60 +1,213 @@
+//inicio nuevo
+var procesocount=0;
+var yaesta=false;
+var apiURL='https://practisis.net/connectnubepos/api2.php';
+function SyncStart(){
+	var idbarra = localStorage.getItem('idbarra');
+	var categoriasya = localStorage.getItem('categoriasya');
+	var productosya = localStorage.getItem('productosya');
+	var clientesya = localStorage.getItem('clientesya');
+	var presupuestoya = localStorage.getItem('presupuestoya');
+	if(presupuestoya){
+		yaesta=true;
+		envia('dashboard');
+		//setInterval(function(){SincronizadorNormal();},3000);
+	}else if(clientesya){
+		ExtraeDatosApi(4);
+	}else if(productosya){
+		ExtraeDatosApi(3);
+	}else if(categoriasya){
+		ExtraeDatosApi(2);
+	}else if(idbarra){
+		ExtraeDatosApi(1);
+	}
+	else{
+		ExtraeDatosApi(0);
+	}
 
-var barra_arriba='';
-var auxuser = '';
-var auxpass = '';
-if(!barra_arriba){
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		 			db.transaction(function(tx){
-					tx.executeSql('SELECT barra_arriba,id FROM empresa ',[],function(tx,results){
-								
-											for (var i=0; i <= results.rows.length-1; i++){
-												var row = results.rows.item(i);
-												var id = row.id;
-												barra_arriba = row.barra_arriba;
-											}
-					});
-					},errorCB ,successCB);	
-		 		}
+}
 
+function ExtraeDatosApi(donde){
+	console.log("saca datos del api"+donde);
+	if(donde==0){
+		envia('cloud');
+	}else if(donde==1){
+		console.log("Datos API 1: Categorias");
+		$(".navbar").slideUp();
+		$("#fadeRow").css("display","none");
+		$("#contentStepSincro").fadeIn();
+	}
+}
+
+function SincronizadorNormal(){
 	
-	var idBarraSync=0;
-	var id_barra=$.trim($("#deviceid").html());  //"pJosueTerminsaxxczal4x20"; //deviceid
-	if(!id_barra) id_barra='a383bc4552bfb701f96a17a4541b5565';
-	//alert(id_barra);
-	var TokenRequest='a383bc4552bfb701f96a17a4541b5565';
-	var empresa;
-	var apiURL='https://practisis.net/connectnubepos/api.php';
-	var apiFolder='https://practisis.net/connectnubepos/';
-	var globalContProductosNube=-1;
-	var globalTSNube="";
+	console.log("sincronizador normal");
+}
 
-function validateToken(){
-	var quien=$("#user2").val();
-	var pass=$("#pass2").val();
-    auxuser = quien;
-    auxpass = pass;
-	$('#btnvalida2').html("<img src='images/loader.gif' width='20px'/>");
-	$.get(apiURL,{ idBarraSync : idBarraSync, TokenRequest : id_barra , id : quien , pass : pass  },function(data){
-	  var res = data.split("input");
-      if(res.length>2){
-	    $("#divdatoslogin").html('<h3>Accede a tu cuenta</h3>'+data);
-      }else{
-        var datosaux = data.split("|");
-        loginEmpresa(datosaux[0],datosaux[1]);
-      }
-	});
+function SetResultados(donde){
+	console.log("set resultados "+donde);
 }
 
 
+function registrarUser(){
+	newEmpresa=$("#newEmpresa").val();
+	newEmail=$("#newEmail").val();
+	newPass=$("#newPass").val();
+	newConfirm=$("#newConfirm").val();
+    var expr = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    if(newEmpresa==''){
+        $('.alert-danger').fadeIn('slow');
+        $(".alert-danger").html('Debe ingresar el nombre de tu negocio.');
+        $("#newEmpresa").val('');
+        setTimeout(function(){ $('.alert-danger').fadeOut('slow'); }, 3000);
+     }else if(newEmail=='' || !expr.test(newEmail)){
+        $('.alert-danger').fadeIn('slow');
+        $(".alert-danger").html('Debe ingresar un e-mail valido para tu negocio.');
+        $("#newEmail").val('');
+        setTimeout(function(){ $('.alert-danger').fadeOut('slow'); }, 3000);
+     }else{
+    	if(newConfirm == newPass){
+			$("#cargandoTabs").fadeIn();
+    		var nombre=newEmpresa;
+    		var celular='';
+    		var email=newEmail;
+    		var passw=newPass;
+    		var rpassw=newConfirm;
+    		var empresa=newEmpresa;
+    		var planPrecio=2;
+    		var nTerminales=1;
+    		var sistema=0;
+    		var franquicia=0;
+    		var pais=1;
+    		var versiones=7;
+			var plan=0;
+			var iddevice=$('#deviceid').html();
+    		$("#btnNewEmp").html('<img src="images/loader.gif"  width="50%" />');
+    		$.post("http://practisis.net/registro/registroNubePOS.php", {
+    			nombre : nombre,
+    			celular : celular,
+    			email :newEmail,
+    			pass : newPass,
+    			rpass : newConfirm,
+    			empresa : empresa,
+    			planPrecio : planPrecio,
+    			nTerminales : nTerminales,
+    			sistema : sistema,
+    			pais : pais,
+    			franquicia : franquicia,
+    			versiones : versiones,
+				deviceid:iddevice
+    		}).done(function(data){
+                if(data=='existe'){
+						$("#cargandoTabs").fadeOut();
+                        $('.alert-danger').fadeIn('slow');
+                        $(".alert-danger").html('El correo ingresado ya existe en el sistema, vuelva a ingresar otro correo.');
+                        $("#newEmail").val('');
+                            setTimeout(function(){ $('.alert-danger').fadeOut('slow'); }, 3000);
+    			}else{
+						var datosback=data.split("||");
+						console.log(data);
+        				localStorage.setItem("userRegister", newEmail);
+        				localStorage.setItem("userPasswod", newPass);
+						localStorage.setItem("empresa",datosback[0]);
+						localStorage.setItem("idbarra",datosback[1]);
+						localStorage.setItem("categoriasya",true);
+						localStorage.setItem("clientesya",true);
+						localStorage.setItem("productosya",true);
+						localStorage.setItem("presupuestoya",true);
+						
+						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+						db.transaction(iniciaDB,errorCB,successCB);
+						SetDataEmpresa(nombre,celular,newEmail,iddevice,datosback[1],'','',false);
+                }
+    		});
 
-	function loginEmpresa(id_emp,nombreempresa){
+    	}else{
+					  $("#cargandoTabs").fadeOut();
+    				  $('.alert-danger').fadeIn('slow');
+                      $(".alert-danger").html('Las contraseñas son distintas.');
+                      $("#newPass").val('');
+    				  $("#newConfirm").val('');
+                      setTimeout(function(){ $('.alert-danger').fadeOut('slow'); }, 3000);
+    		}
+        }
+}
 
+
+function LaunchBoarding(){
+	$('#myDash').fadeIn('slow',function(){
+        setTimeout(function() {$("#menu_1").effect('highlight',{},1500);},1000);
+    });
+}
+
+function SetDataEmpresa(nombre,celular,email,deviceid,id_barra_arriba,ruc,direccion,desde_login){
+	
+	var db2 = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+	db2.transaction(
+		function (tx){
+			tx.executeSql('INSERT INTO CONFIG (nombre,razon,telefono,email,ruc,direccion) VALUES(?,?,?,?,?,?)',[nombre,nombre,celular,email,ruc,direccion],function(tx,res){
+				$('#msjOk').html('Informacion Ingresada con Éxito');
+				$('#msjOk').fadeIn('slow');
+				$('#campos').css('display','none');
+				setTimeout(function() {
+					$('#msjOk').fadeOut('slow');
+				}, 3000);
+				});
+	},errorCB,successCB);
+		
+	
+	db2.transaction(
+		function (tx2){
+			tx2.executeSql("INSERT INTO empresa (nombre,nombreempresa,id_barra,barra_arriba) VALUES (?,?,?,?)",[nombre,nombre,deviceid,id_barra_arriba],
+			function(tx2,res){
+				if(!desde_login){
+					LaunchBoarding();
+					envia("dashboard");
+				}else{
+					ExtraeDatosApi(1);
+				}
+								
+			});						
+									
+	},errorCB,successCB);
+	
+}
+
+
+function UserLogin(){
+	var quien=$("#user2").val();
+	var pass=$("#pass2").val();
+	var iddevice=$('#deviceid').html();
+    auxuser = quien;
+    auxpass = pass;
+	$('#btnvalida2').html("<img src='images/loader.gif' width='20px'/>");
+	$.get(apiURL,{action:"login", user : quien , pass : pass, deviceid : iddevice},function(data){
+		if(data=='error'){
+			showalert('Los datos son incorrectos.');
+		}
+		else{
+			var datosaux = data.split("||");
+			localStorage.setItem("userRegister", quien);
+			localStorage.setItem("userPasswod", pass);
+			localStorage.setItem("empresa",datosaux[0]);
+			localStorage.setItem("idbarra",datosaux[2]);
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+			db.transaction(iniciaDB,errorCB,function(){SetDataEmpresa(datosaux[1],datosaux[3],quien,iddevice,datosaux[2],datosaux[4],datosaux[5],true)});
+			//function SetDataEmpresa(nombre,celular,email,deviceid,id_barra_arriba,ruc,direccion,desde_login)
+			//SetDataEmpresa(datosaux[1],datosaux[3],quien,iddevice,datosaux[2],datosaux[4],datosaux[5],true);
+		}
+		$('#btnvalida2').html("Login");
+	});
+}
+
+//-----------------------------------Fin nuevo---------------
+function LoginEmpresa(id_emp,nombreempresa){
     $.post(apiURL,{
-    		id_emp : empresa ,
-    		KeyRequest : 'datosIniciales',
-    		id_barra : id_barra,
-    		yaConectado : yaConectado,
-    		idBarraSync : idBarraSync
+    		id_emp : localStorage.getItem("empresa"),
+    		action : "loginempresa",
+    		id_barra : localStorage.getItem("idbarra"),
+    		/*yaConectado : yaConectado,
+    		idBarraSync : idBarraSync*/
     }).done(function(response){
     		if(response=='block'){
     		  document.getElementById('linklogin').href='https://www.practisis.net/index3.php?rvus='+auxuser+'&rvpas='+auxpass;
@@ -65,14 +218,8 @@ function validateToken(){
     		  $('.navbar').fadeIn('fast');
     		  $("#fadeRow").fadeOut();
     			 $("#contentStepSincro").fadeIn();
-    				localStorage.setItem("empresa", id_emp);
-
-    				localStorage.setItem("nombreempresa",nombreempresa );
-    				localStorage.setItem("id_barra", id_barra);
-
-
-    				 empresa = localStorage.getItem('empresa');
-    				 $('#id_emp').html('Emp'+empresa);
+    				empresa = localStorage.getItem('empresa');
+    				$('#id_emp').html('Emp'+empresa);
     				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
     				db.transaction(function(tx){
     					tx.executeSql('SELECT COUNT(id) as cuantos FROM empresa',[],function(tx,res){
@@ -80,7 +227,7 @@ function validateToken(){
     						if(existen==0){
     							db.transaction(
     								function (tx){
-    									tx.executeSql('INSERT INTO empresa (nombre,nombreempresa,id_barra) VALUES ('+id_emp+',"'+nombreempresa+'","'+id_barra+'");',[],
+    									tx.executeSql('INSERT INTO empresa (nombre,nombreempresa,id_barra) VALUES ('+id_emp+',"'+nombreempresa+'","'+localStorage.idbarra+'");',[],
     									 function(tx,res){
 
     										console.log("Insert ID Empresa Sql:"+res.insertId);
@@ -89,7 +236,7 @@ function validateToken(){
     								},errorCB,successCB
     							);
     						}
-    						sincronizarProcess2();
+    						ExtraerDatosApi(1);
     					});
 
     				},errorCB,successCB);
@@ -98,6 +245,41 @@ function validateToken(){
     //return false;
 
 }
+
+
+var barra_arriba='';
+var auxuser = '';
+var auxpass = '';
+if(!barra_arriba){
+	/*var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+		 			db.transaction(function(tx){
+					tx.executeSql('SELECT barra_arriba,id FROM empresa ',[],function(tx,results){
+								
+											for (var i=0; i <= results.rows.length-1; i++){
+												var row = results.rows.item(i);
+												var id = row.id;
+												barra_arriba = row.barra_arriba;
+											}
+					});
+					},errorCB ,successCB);*/
+}
+
+	
+	var idBarraSync=0;
+	var id_barra=$.trim($("#deviceid").html());  //"pJosueTerminsaxxczal4x20"; //deviceid
+	if(!id_barra) id_barra='a383bc4552bfb701f96a17a4541b5565';
+	//alert(id_barra);
+	var TokenRequest='a383bc4552bfb701f96a17a4541b5565';
+	var empresa;
+	//apiURL='https://practisis.net/connectnubepos/api.php';
+	var apiFolder='https://practisis.net/connectnubepos/';
+	var globalContProductosNube=-1;
+	var globalTSNube="";
+
+
+
+
+
 
 
 
@@ -1342,7 +1524,7 @@ function localCategoriaID(categoriaid){
 			$.post(apiURL, { idBarraSync : barra_arriba,  id_barra : id_barra , id_emp : empresa , KeyRequest : "limpiarSincronizaDatos"  }).done(function(data){
 				console.log("Fin sincronizacion Limpio?");
 			 	$("#main").html("<center>  <br> <label id='putimer'></label> <br> <img style='max-width:65%;' src='images/doneSync.png' onclick=\"envia('dashboard')\" style='cursor:pointer;' /> </center>");
-			 	intervalProcesoRepetir=setInterval(function(){
+			 	/*intervalProcesoRepetir=setInterval(function(){
 			 			contInterval++;
 			 			if( (30 - contInterval ) <= 0 ){
 			 				contInterval=0;
@@ -1351,7 +1533,7 @@ function localCategoriaID(categoriaid){
 			 				return;
 			 			}
 			 			$("#putimer").html("Este proceso se repetirá en En " + ( 30 - contInterval ) + " Segundos");
-			 	},1000);
+			 	},1000);*/
 			 		
 				//envia("cloud");
 			});
@@ -1944,10 +2126,10 @@ function localCategoriaID(categoriaid){
 		
 		
 		
-		console.clear();
+//console.clear();
 		
 		
-console.log('\
+/*console.log('\
 	\n \
 	\n \
 ███╗   ██╗██╗   ██╗██████╗ ███████╗██████╗  ██████╗ ███████╗\n \
@@ -1970,4 +2152,4 @@ console.log('\
 ███████║   ██║   ██║ ╚████║╚██████╗██║  ██║╚██████╔╝██║ ╚████║██║███████╗██║  ██║██║ ╚████║██████╔╝╚██████╔╝██╗██╗██╗\n \
 ╚══════╝   ╚═╝   ╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚═╝╚═╝╚═╝\n \
 \n \
-');                                                                                                                     
+');*/                                                                                                      
