@@ -152,7 +152,7 @@ var app = {
         //console.log("Ana");
         var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
         //tx.executeSql('DROP TABLE IF EXISTS PRODUCTOS');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS PRODUCTOS (id_local integer primary key AUTOINCREMENT,id integer, formulado text, codigo text, precio real, categoriaid text,cargaiva integer,productofinal integer,materiaprima integer,timespan text,ppq real default 0,color text,servicio integer default 0,estado integer default 1, sincronizar boolean default "true" )');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS PRODUCTOS (id_local integer primary key AUTOINCREMENT,id integer, formulado text, codigo text, precio real, categoriaid text,cargaiva integer,productofinal integer,materiaprima integer,timespan text UNIQUE,ppq real default 0,color text,servicio integer default 0,estado integer default 1, sincronizar boolean default "true")');
 		
 		tx.executeSql('CREATE TABLE IF NOT EXISTS CONFIG (id integer primary key AUTOINCREMENT, nombre text, razon text , ruc integer, telefono integer , email text , direccion text, printer text)');
 		tx.executeSql('CREATE TABLE IF NOT EXISTS FACTURAS_FORMULADOS (id integer primary key AUTOINCREMENT, timespan_factura text, timespan_formulado text , cantidad real, precio_unitario real)');
@@ -219,14 +219,14 @@ var app = {
         
         
         //tx.executeSql('DROP TABLE IF EXISTS CATEGORIAS');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS CATEGORIAS (id integer primary key AUTOINCREMENT, categoria text, activo integer, existe integer , timespan text, sincronizar boolean default "true"  )');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS CATEGORIAS (id integer primary key AUTOINCREMENT, categoria text, activo integer, existe integer , timespan text UNIQUE, sincronizar boolean default "true"  )');
         tx.executeSql('SELECT COUNT(id) as cuantos FROM CATEGORIAS',[],function(tx,res){
             var existen=res.rows.item(0).cuantos;
             if(existen==0)
                 db.transaction(IngresaCategorias,errorCB,successCB);
         });
         //tx.executeSql('DROP TABLE IF EXISTS CLIENTES');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS CLIENTES (id integer primary key AUTOINCREMENT,nombre text, cedula text, email text, direccion text, telefono text,existe integer,timespan TEXT, sincronizar boolean default "true")');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS CLIENTES (id integer primary key AUTOINCREMENT,nombre text, cedula text UNIQUE, email text, direccion text, telefono text,existe integer,timespan TEXT, sincronizar boolean default "true")');
         tx.executeSql('SELECT COUNT(id) as cuantos FROM CLIENTES',[],function(tx,res){
             var existen=res.rows.item(0).cuantos;
             if(existen==0)
@@ -650,4 +650,4 @@ function getTimeSpan(){
 		var d = new Date();
 		var n = d.getTime();
 		return n+''+rn;
-		}
+}
