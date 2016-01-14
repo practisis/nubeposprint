@@ -142,11 +142,6 @@ function SincronizadorNormal(){
 	DatosRecurrentes(0);
 }
 
-function SetResultados(donde){
-	console.log("set resultados "+donde);
-}
-
-
 function registrarUser(){
 	newEmpresa=$("#newEmpresa").val();
 	newEmail=$("#newEmail").val();
@@ -330,13 +325,13 @@ function DatosRecurrentes(cual){
 		deviceid:$("#deviceid").html()
 		}).done(function(response){
 			jsonSync=JSON.parse(response);
-			console.log(jsonSync);
+			//console.log(jsonSync);
 			recurrenteJsonEmpresa=jsonSync.BigJson[0].Empresa;
 			$('#JSONproductosNube').html(JSON.stringify(jsonSync.BigJson[1].Productos));
 			$('#JSONclientesNube').html(JSON.stringify(jsonSync.BigJson[2].Clientes));
 			$('#JSONCategoriasNube').html(JSON.stringify(jsonSync.BigJson[3].Categorias));
 			$('#JSONpresupuestoNube').html(JSON.stringify(jsonSync.BigJson[4].Presupuesto));
-			console.log( ">>>>>>recurrente" + jsonSync);
+			console.log( ">>>>>>recurrente");
 			DatosRecurrentes(1);
 		});
 		
@@ -348,11 +343,12 @@ function DatosRecurrentes(cual){
 		if($('#JSONCategoriasNube').html().length>0){
 			var jsoncategorias=JSON.parse($('#JSONCategoriasNube').html());
 			console.log(jsoncategorias);
-			var stringcatupdate='';
+			localStorage.setItem('dataupdate','');
 			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 				db.transaction(function(tx){
 				for(var n=0;n<jsoncategorias.length;n++){
 					var item=jsoncategorias[n];
+					localStorage.setItem('dataupdate',localStorage.getItem("dataupdate")+item.idreal+',');
 					
 					tx.executeSql("INSERT OR IGNORE INTO CATEGORIAS (categoria,activo,existe,timespan,sincronizar)values('"+item.formulado_tipo+"','1','1','"+item.timespan+"','false')",[],function(tx,results){
 						console.log("insertada categ:"+results.insertId);
@@ -360,7 +356,6 @@ function DatosRecurrentes(cual){
 					
 					tx.executeSql("UPDATE CATEGORIAS SET categoria = '"+item.formulado_tipo+"' WHERE timespan='"+item.timespan+"'",[],function(tx,results){
 						console.log("actualizada categ");
-						stringcatupdate+=item.idreal+',';
 					});
 					
 				}
@@ -370,10 +365,13 @@ function DatosRecurrentes(cual){
 							id_emp: localStorage.getItem("empresa"),
 							action: 'DeleteSinc',
 							id_barra: localStorage.getItem("idbarra"),
-							tabla: "formulados_tipo",
-							idreal:stringcatupdate,
+							tabla: "('formulados_tipo')",
+							idreal:localStorage.getItem("dataupdate"),
 							deviceid:$("#deviceid").html()
-					}).done(function(response){DatosRecurrentes(2);});
+					}).done(function(response){
+							localStorage.setItem("dataupdate","");
+							DatosRecurrentes(2);
+					});
 					
 				});
 		}	
@@ -384,19 +382,19 @@ function DatosRecurrentes(cual){
 		if($('#JSONproductosNube').html().length>0){
 			var jsonproductos=JSON.parse($('#JSONproductosNube').html());
 			console.log(jsonproductos);
-			var stringprodupdate='';
+			localStorage.setItem('dataupdate','');
 			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 				db.transaction(function(tx){
 				for(var n=0;n<jsonproductos.length;n++){
 					var item=jsonproductos[n];
+					localStorage.setItem('dataupdate',localStorage.getItem("dataupdate")+item.id+',');
 					
-					tx.executeSql('INSERT INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,servicio,sincronizar)VALUES("'+item.formulado+'","'+item.formulado_codigo+'",'+item.precio+',"'+item.formulado_tipo_timespan+'",'+item.ivacompra+','+item.esproductofinal+','+item.esmateriaprima+',"'+item.timespan+'" ,'+item.tieneservicio+',"false")',[],function(tx,results){
+					tx.executeSql('INSERT OR IGNORE INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,servicio,sincronizar)VALUES("'+item.formulado+'","'+item.formulado_codigo+'",'+item.precio+',"'+item.formulado_tipo_timespan+'",'+item.ivacompra+','+item.esproductofinal+','+item.esmateria+',"'+item.timespan+'" ,'+item.tieneservicio+',"false")',[],function(tx,results){
 						console.log("insertado prod:"+results.insertId);
 					});
 					
-					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+item.formulado+'",codigo="'+item.formulado_codigo+'",precio='+item.precio+',categoriaid="'+item.formulado_tipo_timespan+'",cargaiva='+item.ivacompra+',productofinal='+item.esproductofinal+',materiaprima='+item.esmateriaprima+',timespan="'+item.timespan+'",servicio='+item.tieneservicio+',sincronizar="false" WHERE timespan="'+item.timespan+'"',[],function(tx,results){
+					tx.executeSql('UPDATE PRODUCTOS SET formulado="'+item.formulado+'",codigo="'+item.formulado_codigo+'",precio='+item.precio+',categoriaid="'+item.formulado_tipo_timespan+'",cargaiva='+item.ivacompra+',productofinal='+item.esproductofinal+',materiaprima='+item.esmateria+',timespan="'+item.timespan+'",servicio='+item.tieneservicio+',sincronizar="false" WHERE timespan="'+item.timespan+'"',[],function(tx,results){
 						console.log("actualizado prod");
-						stringprodupdate+=item.id+',';
 					});
 				}
 				},errorCB,function(){
@@ -405,36 +403,219 @@ function DatosRecurrentes(cual){
 							id_emp: localStorage.getItem("empresa"),
 							action: 'DeleteSinc',
 							id_barra: localStorage.getItem("idbarra"),
-							tabla: "formulados",
-							idreal:stringprodupdate,
+							tabla: "('formulados','formulados_precios','formulados_impuestos')",
+							idreal:localStorage.getItem("dataupdate"),
 							deviceid:$("#deviceid").html()
-					}).done(function(response){DatosRecurrentes(3);});
+					}).done(function(response){
+						console.log(response);
+						localStorage.setItem("dataupdate","");
+						DatosRecurrentes(3);
+					});
 				});
 		}	
 	}else if(cual==3){
 		console.log("recurrentes 3: Clientes");
+		$("#contentStepSincro").fadeIn();
+		$("#txtSincro").html("Sincronizando Clientes...");
+		if($('#JSONclientesNube').html().length>0){
+			var jsonclientes=JSON.parse($('#JSONclientesNube').html());
+			console.log(jsonclientes);
+			localStorage.setItem('dataupdate','');
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				db.transaction(function(tx){
+				for(var n=0;n<jsonclientes.length;n++){
+					var item=jsonclientes[n];
+					localStorage.setItem('dataupdate',localStorage.getItem("dataupdate")+item.idreal+',');
+					
+					tx.executeSql('INSERT OR IGNORE INTO CLIENTES(nombre,cedula,email,direccion,telefono,sincronizar,existe,timespan) VALUES("'+item.nombre+'" , "'+item.cedula+'" , "'+item.email+'" , "'+item.direccion+'" ,  "'+item.telefono+'" ,  "false" , "0" , "0" )',[],function(tx,results){
+						console.log("insertado cliente:"+results.insertId);
+					});
+					
+					tx.executeSql('UPDATE CLIENTES SET nombre=  "'+item.nombre+'"  , cedula = "'+item.cedula+'" , email="'+item.email+'"  , direccion = "'+item.direccion+'" , sincronizar="false"  WHERE cedula='+item.cedula,[],function(tx,results){
+						console.log("actualizado cliente");
+					});
+				}
+				},errorCB,function(){
+					$("#theProgress").css("width" , "75%");
+					$.post(apiURL,{
+							id_emp: localStorage.getItem("empresa"),
+							action: 'DeleteSinc',
+							id_barra: localStorage.getItem("idbarra"),
+							tabla: "('clientes','clientes_datos')",
+							idreal:localStorage.getItem("dataupdate"),
+							deviceid:$("#deviceid").html()
+					}).done(function(response){
+						console.log(response);
+						localStorage.setItem("dataupdate","");
+						DatosRecurrentes(4);
+					});
+		});
+		}
+	}else if(cual==4){
+		console.log("recurrentes 4: Presupuestos");
+		$("#contentStepSincro").fadeIn();
+		$("#txtSincro").html("Sincronizando Presupuesto...");
+		if($('#JSONpresupuestoNube').html().length>0){
+			var jsonpresup=JSON.parse($('#JSONpresupuestoNube').html());
+			console.log(jsonpresup);
+			localStorage.setItem('dataupdate','');
+			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				db.transaction(function(tx){
+				for(var n=0;n<jsonpresup.length;n++){
+					var item=jsonpresup[n];
+					localStorage.setItem('dataupdate',localStorage.getItem("dataupdate")+item.id+',');
+					
+					tx.executeSql('INSERT OR IGNORE INTO PRESUPUESTO(timespan,valor,fecha,transacciones) VALUES("'+item.id+'",'+item.valor+','+item.fecha+','+item.transacciones+')',[],function(tx,results){
+						console.log("insertado presupuesto:"+results.insertId);
+					});
+					
+					tx.executeSql('UPDATE PRESUPUESTO SET timespan=  "'+item.id+'"  , valor = "'+item.valor+'" , fecha="'+item.fecha+'", transacciones = "'+item.transacciones+'" WHERE timespan='+item.id,[],function(tx,results){
+						console.log("actualizado presupuesto");
+					});
+				}
+				},errorCB,function(){
+					$("#theProgress").css("width" , "100%");
+					$.post(apiURL,{
+							id_emp: localStorage.getItem("empresa"),
+							action: 'DeleteSinc',
+							id_barra: localStorage.getItem("idbarra"),
+							tabla: "('presupuesto')",
+							idreal:localStorage.getItem("dataupdate"),
+							deviceid:$("#deviceid").html()
+					}).done(function(response){
+						console.log(response);
+						localStorage.setItem("dataupdate","");
+						SubirDatosaNube(0);
+					});
+				});
+		}
 	}
-		
-		
-		/*if(jsonSync.BigJson[1].Clientes.length){
-			productosJsonActualizar=response;
-			contClientesSync=-1;
-			clientesAbajo(jsonSync.BigJson[1].Clientes);
-		}else{
-			$("#theProgress").css("width" ,  "25%");
-			if(recurrenteJsonCategorias.length){
-				//Si existen Categorias Empezamos el proceso
-				contCategoriasSync=-1;
-				categoriasAbajo(recurrenteJsonCategorias);
-			}else{
-		 		$("#theProgress").css("width" ,"50%");
-				//Si no hay categorias Vamos con los productos
-				contProductosSync=-1;
-				productosAbajo(recurrenteJsonProductos);
-			}
-		}*/
 }
 
+function SubirDatosaNube(cual){
+	console.log("sincronizador de subida...");
+	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+	if(cual==0){
+		db.transaction(function(tx){
+			console.log("subida de categorias");
+			tx.executeSql('SELECT * FROM CATEGORIAS WHERE sincronizar="true"',[],function(tx,results){
+				console.log(results);
+				if(results.rows.length>0){
+					var itemsasubir=results.rows;
+					console.log(itemsasubir);
+					PostaLaNube(itemsasubir,cual,"Categorias",0);
+				}else{
+					SubirDatosaNube(1);
+				}
+			});
+		},errorCB,successCB);
+	}if(cual==1){
+		db.transaction(function(tx){
+			console.log("subida de productos");
+			tx.executeSql('SELECT * FROM PRODUCTOS WHERE sincronizar="true"',[],function(tx,results){
+				if(results.rows.length>0){
+					var itemsasubir=results.rows;
+					PostaLaNube(itemsasubir,cual,"Productos",0);
+				}else{SubirDatosaNube(2)}
+			});
+		},errorCB,successCB);
+	}
+	/*if(cual==2){
+		db.transaction(function(tx){
+			console.log("subida de clientes");
+			tx.executeSql('SELECT * FROM CLIENTES WHERE sincronizar="true"',[],function(tx,results){
+				if(results.rows.length>0){
+					var itemsasubir=results.rows;
+					PostaLaNube(itemsasubir,cual,"Clientes",0);
+				}else{SubirDatosaNube(3)}
+			});
+		},errorCB,successCB);
+	}*/
+	if(cual==2){
+		db.transaction(function(tx){
+			console.log("subida de facturas");
+			tx.executeSql('SELECT * FROM FACTURAS WHERE sincronizar="true"',[],function(tx,results){
+				if(results.rows.length>0){
+					var itemsasubir=results.rows;
+					PostaLaNube(itemsasubir,cual,"Facturas",0);
+				}else{SubirDatosaNube(3)}
+			});
+		},errorCB,successCB);
+	}
+	if(cual==3){
+		db.transaction(function(tx){
+			console.log("subida de EMPRESA");
+			tx.executeSql('SELECT * FROM CONFIG WHERE sincronizar="true"',[],function(tx,results){
+				if(results.rows.length>0){
+					var itemsasubir=results.rows;
+					PostaLaNube(itemsasubir,cual,"Config",0);
+				}else{SubirDatosaNube(4)}
+			});
+		},errorCB,successCB);
+	}
+	if(cual==4){
+		setTimeout(function(){SincronizadorNormal();},60000);
+	}
+}
+
+function PostaLaNube(arraydatos,cual,accion,t){
+	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+	var item=arraydatos.item(t);
+	var jsonc='';
+	if(accion=='Categorias'){
+		jsonc='{"id":"'+item.id+'","categoria":"'+item.categoria+'","activo":"'+item.activo+'","timeSpan":"'+item.timespan+'"}';
+	}else if(accion=='Productos'){
+		jsonc='{  "id" : "'+item.id_local+'" , "formulado" : "'+item.formulado+'" , "timespan" : "'+item.timespan+'" , "codigo" : "'+item.codigo+'" , "precio" : "'+item.precio+'" , "cargaiva" : "'+item.cargaiva+'" , "categoriaid" : "'+item.categoriaid+'" , "productofinal" : "'+item.productofinal+'" , "materiaprima" : "'+item.materiaprima+'" , "servicio" : "'+item.servicio+'" , "activo" : "'+item.estado+'" }';
+	}else if(accion=='Clientes'){
+		jsonc='{  "id" : "'+item.id+'" , "cedula" : "'+item.cedula+'" , "nombre" : "'+item.nombre+'"  , "email" : "'+item.email+'" , "direccion" : "'+item.direccion+'" , "telefono" : "'+item.telefono+'" }';
+	}else if(accion=='Facturas'){
+		jsonc=item.fetchJson;
+	}else if(accion=='Config'){
+		jsonc='{"nombreempresa":"'+item.nombre+'","razon":"'+item.razon+'","telefono":"'+item.telefono+'","ruc":"'+item.ruc+'","direccion":"'+item.direccion+'","email":"'+item.email+'"}';
+		
+	}
+	
+	console.log(jsonc);
+	
+	$.post(apiURL,{
+		id_emp: localStorage.getItem("empresa"),
+		action: accion,
+		id_barra: localStorage.getItem("idbarra"),
+		json:jsonc,
+		deviceid:$("#deviceid").html()
+	}).done(function(response){
+		console.log(response);
+		if(parseInt(response)>0){
+			db.transaction(function(tx){
+				var sentencia='UPDATE '+accion+' SET sincronizar="false" WHERE timespan="'+item.timespan+'"';
+				if(accion=='Clientes')
+				sentencia='UPDATE '+accion+' SET sincronizar="false" WHERE cedula="'+item.cedula+'"';
+				
+				if(accion=='Config')
+				sentencia='UPDATE '+accion+' SET sincronizar="false" WHERE id=1';
+
+				tx.executeSql(sentencia,[],function(tx,results){});
+			},errorCB,function(){
+				if(t<arraydatos.length-1){
+					t++;
+					PostaLaNube(arraydatos,cual,accion,t);
+				}else{
+					console.log("Subir a la nube 2");
+					SubirDatosaNube(cual+1);
+				}
+			});
+		}else{
+			if(t<arraydatos.length-1){
+				t++;
+				PostaLaNube(arraydatos,cual,accion,t);
+			}
+			else{
+				console.log("Subir a la nube 2");
+				SubirDatosaNube(cual+1);
+			}
+		}
+	});
+} 
 
 //-----------------------------------Fin nuevo---------------
 
@@ -1316,7 +1497,7 @@ function localCategoriaID(categoriaid){
 									var categoria = row.categoria;
 									var activo = row.activo;
 									var existe = row.existe;
-									txt+='{  "id" : "'+idCat+'" ,  "categoria" : "'+categoria+'" ,  "activo" : "'+activo+'" ,  "existe" : "'+existe+'" ,  "timespan" : "'+timeSpan+'"  },';
+									txt+='{"id" : "'+idCat+'" ,  "categoria" : "'+categoria+'" ,  "activo" : "'+activo+'" ,  "existe" : "'+existe+'" ,  "timespan" : "'+timeSpan+'"  },';
 									//$("#JSONCategoriasLocal").append(txt);
 								}
 								txt=txt.substring(0,txt.length-1);
@@ -1455,7 +1636,7 @@ function localCategoriaID(categoriaid){
 					return;
 				}
 							i=contFacturas;
-							var row = objFactura.rows.item(i);
+							    var row = objFactura.rows.item(i);
 								id=row.id;		
 								clientName=row.clientName;
 								fetchJson=row.fetchJson;

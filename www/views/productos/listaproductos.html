@@ -355,7 +355,10 @@ function getSearch(){
 		for (var i=0; i < results.rows.length; i++){
 			var row = results.rows.item(i);
 			formulado = row.formulado;
-			timespanCat = row.categoriaid;
+			
+			var timespanCat=0;
+			if(row.categoriaid!=null)
+				timespanCat = row.categoriaid;
 			cat=$('.categoriasPrecargadas[timespan="'+timespanCat+'"]').text();
 			//alert(timespanCat + ">>" + formulado + "==" +cat );
 		}

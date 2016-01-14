@@ -1034,7 +1034,7 @@ function pagar(){
 			json +=	'"cedula": "'+$('#cedulaP').val()+'",';
 			json +=	'"nombre": "'+$('#nombreP').val()+'",';
 			json +=	'"telefono": "'+$('#telefonoP').val()+'",';
-			json +=	'"tipoCliente": "'+$('#tipoP').val()+'",';
+			json +=	'"email": "'+$('#emailP').val()+'",';
 			json +=	'"direccion": "'+$('#direccionP').val()+'",';
 			json +=	'"listaDePrecio": ""';
 			json +=	'},';

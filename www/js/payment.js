@@ -513,7 +513,7 @@ function performPurchase(restaurant){
 			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 			db.transaction(Ingresafacturas, errorCB, successCB);
 			function Ingresafacturas(tx){
-				tx.executeSql("INSERT INTO FACTURAS(clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,vauleCxC,paymentConsumoInterno,tablita,aux,acc,echo,fecha,timespan)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",[clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,valueCxC,paymentConsumoInterno,table,aux,acc,echo,hoy,mitimespan],function(){
+				tx.executeSql("INSERT INTO FACTURAS(clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,vauleCxC,paymentConsumoInterno,tablita,aux,acc,echo,fecha,timespan,sincronizar)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",[clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,valueCxC,paymentConsumoInterno,table,aux,acc,echo,hoy,mitimespan,'true'],function(){
 					console.log("Nueva Factura Ingresada");
 					var mijsonprod=JSON.parse(fetchJson);
 					var misprod = mijsonprod.Pagar[0].producto;
@@ -2178,7 +2178,7 @@ function jsonNuevoCliente()
 		tx.executeSql('SELECT id FROM CLIENTES WHERE cedula=?;',[cedula],
 		function(tx,res){
 			if(res.rows.length>0){
-				tx.executeSql('UPDATE CLIENTES SET nombre=?,direccion=?, telefono=?, email=? WHERE cedula=?;',[nombreP,direccionP,telefonoP,email,cedula],
+				tx.executeSql('UPDATE CLIENTES SET nombre=?,direccion=?, telefono=?, email=?, sincronizar=? WHERE cedula=?;',[nombreP,direccionP,telefonoP,email,cedula,'true'],
 				function(tx,res2){
 					console.log("Cliente Actualizado!");
 					$('#idCliente').val(res.rows.item(0).id);
@@ -2187,7 +2187,7 @@ function jsonNuevoCliente()
 					$("#newCliente,#opaco").fadeOut();
 				});	
 			}else{
-				tx.executeSql('INSERT INTO CLIENTES (nombre,direccion,cedula,telefono,email,existe) VALUES (?,?,?,?,?,?)',[nombreP,direccionP,cedula,telefonoP,email,0],
+				tx.executeSql('INSERT INTO CLIENTES (nombre,direccion,cedula,telefono,email,existe,sincronizar) VALUES (?,?,?,?,?,?,?)',[nombreP,direccionP,cedula,telefonoP,email,0,'true'],
 				function(tx,res3){
 					console.log(res3.insertId);
 					$('#idCliente').val(res3.insertId);
