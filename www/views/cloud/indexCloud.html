@@ -1,5 +1,4 @@
 <script src="js/sync.js" ></script>
-
 	<div class="row">
 		<div class="col-xs-12">
 			<div id="yaConectado" style="display:none;width:60%;padding:0px;margin:0px;margin-top:80px;">
@@ -88,7 +87,14 @@
 		</div>
 		<br><br><br><br><br><br><br><br><br>
 
-	  </div> <!--End row -->
+	  </div>
+	  <div class='row'>
+		<div class='col-lg-12' id='finalizado'>
+		<img style='max-width:65%;' src='images/doneSync.png' style='cursor:pointer;' />
+		</div>
+	  </div>
+	  
+	<!--End row -->
 
 	  <script>
 	  	
@@ -276,8 +282,17 @@
 		</table>	
 	</div>
 	-->
-	<input type="hidden" id="idcategoria" />
+<input type="hidden" id="idcategoria" />
 <script>
+$(document).ready(function(){
+	if(procesocount==0){
+		$('#fadeRow,#demoGratis,#contentStepSincro').css("display","none");
+		$('#finalizado').fadeIn();
+	}else{
+		$('#finalizado').css("display","none");
+		$('#contentStepSincro').fadeIn();
+	}
+});
 		//SyncStart();
 		/*var loopSicnronizador;
 		var yaConectado=false;

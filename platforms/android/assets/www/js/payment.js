@@ -13,8 +13,8 @@ function receiveJson(){
 		$('#valueCxX').val(jsonObject.Pagar[0].factura.total);
 		$('#printTotal').html(jsonObject.Pagar[0].factura.total);
 		
-		$('#invoiceNr').html($('#nextnumber').val());
-		$('#printInvoiceNr').html($('#nextnumber').val());
+		//$('#invoiceNr').val($('#nextnumber').val());
+		//$('#printInvoiceNr').html($('#nextnumber').val());
 		
 		/*$.ajax({
 			type: 'POST',
@@ -386,19 +386,19 @@ function performPurchase(restaurant){
 	pagar();
 	if($('#idCliente').val()!=''&&$('#idCliente').val()>0){
 		var table;
-		var aux;
+		var aux=$('#invoiceNr').val();
 		var acc = document.getElementById('acc').value;
 		var echo = document.getElementById('echo').value;
 		//alert(acc+'**'+echo);
 
-		if(restaurant == 'table'){
+		/*if(restaurant == 'table'){
 			table = parseInt($('#shopActivatedTable').val());
 			aux = parseInt($('#shopActivatedAux').val());
 			}
 		else{
 			table = parseInt($('#shopActivatedTable').val());
 			aux = parseInt($('#shopActivatedAux').val());
-			}
+			}*/
 
 		var invoicePaid = parseFloat($('#invoicePaid').html());
 		var invoiceTotal = parseFloat($('#invoiceTotal').html());
@@ -513,7 +513,7 @@ function performPurchase(restaurant){
 			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 			db.transaction(Ingresafacturas, errorCB, successCB);
 			function Ingresafacturas(tx){
-				tx.executeSql("INSERT INTO FACTURAS(clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,vauleCxC,paymentConsumoInterno,tablita,aux,acc,echo,fecha,timespan)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",[clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,valueCxC,paymentConsumoInterno,table,aux,acc,echo,hoy,mitimespan],function(){
+				tx.executeSql("INSERT INTO FACTURAS(clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,vauleCxC,paymentConsumoInterno,tablita,aux,acc,echo,fecha,timespan,sincronizar)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",[clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,valueCxC,paymentConsumoInterno,table,aux,acc,echo,hoy,mitimespan,'true'],function(){
 					console.log("Nueva Factura Ingresada");
 					var mijsonprod=JSON.parse(fetchJson);
 					var misprod = mijsonprod.Pagar[0].producto;
@@ -1793,7 +1793,12 @@ function cancelPayment(){
           }
 		  
 function BuscarCliente(e){
-	var valor=$('#busquedacliente').val();
+	var valor=$('#cedulaP').val();
+	$('#descripcionD input').each(function(){
+		if($(this).attr('id')!='cedulaP')
+			$(this).val('');
+	});
+	
 	if(e==13){
 		mostrarClientes();
 		//$('#opaco').fadeIn();
@@ -1819,6 +1824,16 @@ function BuscarCliente(e){
 					if($('#insideShop').length > 0){
 						continueShopping(row.id);
 					}
+					
+						/*$('#descripcionD input').each(function(){
+							if(row.cedula=='9999999999999'){
+								if($(this).attr('id')!='cedulaP')
+									$(this).prop('readonly','true');
+							}else{
+								$(this).removeProp('readonly');
+							}
+						});*/
+					
 			}});	
 		},errorCB,successCB);
 		
@@ -1875,7 +1890,15 @@ function BuscarCliente(e){
 		}).fail(function(){
 			mostrarClientes();
 		});*/
-		
+		$('#descripcionD input').each(function(){
+			if(valor=='9999999999999'){
+				if($(this).attr('id')!='cedulaP')
+					$(this).prop('readonly','true');
+			}else{
+					$(this).removeProp('readonly');
+			}
+		});
+	
 	}
 }
 
@@ -2155,7 +2178,7 @@ function jsonNuevoCliente()
 		tx.executeSql('SELECT id FROM CLIENTES WHERE cedula=?;',[cedula],
 		function(tx,res){
 			if(res.rows.length>0){
-				tx.executeSql('UPDATE CLIENTES SET nombre=?,direccion=?, telefono=?, email=? WHERE cedula=?;',[nombreP,direccionP,telefonoP,email,cedula],
+				tx.executeSql('UPDATE CLIENTES SET nombre=?,direccion=?, telefono=?, email=?, sincronizar=? WHERE cedula=?;',[nombreP,direccionP,telefonoP,email,cedula,'true'],
 				function(tx,res2){
 					console.log("Cliente Actualizado!");
 					$('#idCliente').val(res.rows.item(0).id);
@@ -2164,7 +2187,7 @@ function jsonNuevoCliente()
 					$("#newCliente,#opaco").fadeOut();
 				});	
 			}else{
-				tx.executeSql('INSERT INTO CLIENTES (nombre,direccion,cedula,telefono,email,existe) VALUES (?,?,?,?,?,?)',[nombreP,direccionP,cedula,telefonoP,email,0],
+				tx.executeSql('INSERT INTO CLIENTES (nombre,direccion,cedula,telefono,email,existe,sincronizar) VALUES (?,?,?,?,?,?,?)',[nombreP,direccionP,cedula,telefonoP,email,0,'true'],
 				function(tx,res3){
 					console.log(res3.insertId);
 					$('#idCliente').val(res3.insertId);
@@ -2268,7 +2291,7 @@ function mostrarClientes(){
 												<button tabindex="8" class="btn btn-default">Cancelar</button> \
 											</td>\
 											<td style="vertical-align: top;">\
-												<button tabindex="7" class="btn btn-primary" onclick="jsonNuevoCliente()">Guardar</button> \
+												<button tabindex="7" class="btn btn-success" onclick="jsonNuevoCliente()">Guardar</button> \
 											</td>\
 										</tr>\
 									</table>\

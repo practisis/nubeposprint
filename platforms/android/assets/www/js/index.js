@@ -1,8 +1,8 @@
 var intervalProcesoRepetir;
 var loopSicnronizador;
 function envia(donde){
-			if(loopSicnronizador) clearInterval(loopSicnronizador);
-            clearInterval(intervalProcesoRepetir);
+			//if(loopSicnronizador) clearInterval(loopSicnronizador);
+            //clearInterval(intervalProcesoRepetir);
 			
 					var lugar='';
 					$('#cargandoTabs').css('display','block');
@@ -10,7 +10,6 @@ function envia(donde){
 					lugar="views/dashboard/dashboard.html";
 					if(donde=='puntodeventa')
 					lugar="views/nubepos/nubepos.html";
-					
 					if(donde=='listaproductos')
 					lugar="views/productos/listaproductos.html";
 					if(donde=='nuevoproducto')
@@ -33,15 +32,23 @@ function envia(donde){
 					if(donde=='printconfig')
 					lugar="views/configuracion/impresoras.html";
 					if(!lugar) lugar="404.html";
-					setTimeout(function() {
+					$('#cargandoTabs').css('display','none');
+					$('#correoMal').fadeOut('slow');
+					$('#main').load(lugar,function(){
+						$("#simple-menu").click();
+						loaded();
+					});						
+						//DOMOnTap();
+						//loaded();
+					/*setTimeout(function(){
 						$('#cargandoTabs').css('display','none');
 						$('#correoMal').fadeOut('slow');
 						$('#main').load(lugar,function(){
 						$("#simple-menu").click();						
-						DOMOnTap();
-						loaded();
+						//DOMOnTap();
+						//loaded();
 						});
-					}, 1000);
+					}, 1000);*/
 				}
 		
 
@@ -57,6 +64,8 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+		document.addEventListener("pause", function(){ alert("pausa");}, false);
+		document.addEventListener("backbutton", function(){alert("back");}, false);
     },
     // deviceready Event Handler
     //
@@ -124,10 +133,9 @@ var app = {
 			return cordova.exec(success_callback, error_callback, "StarIOAdapter", "searchall", [port_search]);
 		};
 		
-        envia('dashboard');
-        var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+        /*var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
         db.transaction(iniciaDB, errorCB, successCB);
-        console.log(db);
+        console.log(db);*/
 
 		
         /* var element = document.getElementById('deviceProperties');
@@ -144,8 +152,10 @@ var app = {
         //console.log("Ana");
         var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
         //tx.executeSql('DROP TABLE IF EXISTS PRODUCTOS');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS PRODUCTOS (id_local integer primary key AUTOINCREMENT,id integer, formulado text, codigo text, precio real, categoriaid text,cargaiva integer,productofinal integer,materiaprima integer,timespan text,ppq real default 0,color text,servicio integer default 0,estado integer default 1, sincronizar boolean default "true" )');
-		tx.executeSql('CREATE TABLE IF NOT EXISTS CONFIG (id integer primary key AUTOINCREMENT, nombre text, razon text , ruc integer, telefono integer , email text , direccion text, printer text)');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS PRODUCTOS (id_local integer primary key AUTOINCREMENT,id integer, formulado text, codigo text, precio real, categoriaid text,cargaiva integer,productofinal integer,materiaprima integer,timespan text UNIQUE,ppq real default 0,color text,servicio integer default 0,estado integer default 1, sincronizar boolean default "true")');
+		
+		tx.executeSql('CREATE TABLE IF NOT EXISTS CONFIG (id integer primary key AUTOINCREMENT, nombre text, razon text , ruc integer, telefono integer , email text , direccion text, printer text,sincronizar boolean default "false")');
+		
 		tx.executeSql('CREATE TABLE IF NOT EXISTS FACTURAS_FORMULADOS (id integer primary key AUTOINCREMENT, timespan_factura text, timespan_formulado text , cantidad real, precio_unitario real)');
         tx.executeSql('INSERT INTO PRODUCTOS(id_local,id,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,formulado,estado) VALUES(-1,-1,"-1",0,-1,0,0,0,"-1","Producto NubePOS",0)');
         tx.executeSql('CREATE TABLE IF NOT EXISTS CARDEX (id integer primary key AUTOINCREMENT,id_formulado integer, cantidad real, descripcion text, precio_unidad real, fecha integer,ppq_real real,iva numeric,timespan integer,idfactura text)');
@@ -161,7 +171,7 @@ var app = {
         //tx.executeSql('CREATE TABLE IF NOT EXISTS empresa (id integer primary key AUTOINCREMENT, nombre integer )');
          tx.executeSql('CREATE TABLE IF NOT EXISTS empresa (id integer primary key AUTOINCREMENT, nombre integer, nombreempresa text, id_barra text, barra_arriba text )');
         
-        var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+        /*var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
         //tx.executeSql('DROP TABLE IF EXISTS PRODUCTOS');
         tx.executeSql('CREATE TABLE IF NOT EXISTS logActualizar (id integer primary key AUTOINCREMENT, tabla text , incicial integer , final integer)');
         tx.executeSql('select count(id) as cuantos from logActualizar',[],function(tx,res){
@@ -184,10 +194,10 @@ var app = {
                     if(i == 5){
                         tabla ='PRODUCTOS';
                     }
-                    insertaTablas(tabla);
+                    //insertaTablas(tabla);
                 }
             }
-        });    
+        });   */ 
         
         
         
@@ -210,27 +220,27 @@ var app = {
         
         
         //tx.executeSql('DROP TABLE IF EXISTS CATEGORIAS');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS CATEGORIAS (id integer primary key AUTOINCREMENT, categoria text, activo integer, existe integer , timespan text, sincronizar boolean default "true"  )');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS CATEGORIAS (id integer primary key AUTOINCREMENT, categoria text, activo integer, existe integer , timespan text UNIQUE, sincronizar boolean default "true"  )');
         tx.executeSql('SELECT COUNT(id) as cuantos FROM CATEGORIAS',[],function(tx,res){
             var existen=res.rows.item(0).cuantos;
             if(existen==0)
                 db.transaction(IngresaCategorias,errorCB,successCB);
         });
         //tx.executeSql('DROP TABLE IF EXISTS CLIENTES');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS CLIENTES (id integer primary key AUTOINCREMENT,nombre text, cedula text, email text, direccion text, telefono text,existe integer,timespan TEXT, sincronizar boolean default "true")');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS CLIENTES (id integer primary key AUTOINCREMENT,nombre text, cedula text UNIQUE, email text, direccion text, telefono text,existe integer,timespan TEXT, sincronizar boolean default "true")');
         tx.executeSql('SELECT COUNT(id) as cuantos FROM CLIENTES',[],function(tx,res){
             var existen=res.rows.item(0).cuantos;
             if(existen==0)
                 db.transaction(IngresaClientes,errorCB,successCB);
         });
         //tx.executeSql('DROP TABLE IF EXISTS FACTURAS');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS FACTURAS (id integer primary key AUTOINCREMENT,timespan text ,clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,vauleCxC,paymentConsumoInterno,tablita,aux,acc,echo,fecha,anulada integer);');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS FACTURAS (id integer primary key AUTOINCREMENT,timespan text ,clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,vauleCxC,paymentConsumoInterno,tablita,aux,acc,echo,fecha,anulada integer,sincronizar boolean default "false");');
         tx.executeSql('CREATE TABLE IF NOT EXISTS CAJA (id integer primary key AUTOINCREMENT,hora_ingreso text,hora_salida text,activo integer,sobrante_faltante real,total real,establecimiento text,autorizacion text);');
         tx.executeSql('CREATE TABLE IF NOT EXISTS CAJA_APERTURA_CIERRE (id integer primary key AUTOINCREMENT,id_caja integer,valor_apertura real,movimiento integer);',[],function(tx,result){
             //console.log('Ana');
             //$('#myModal').modal('hide');
         });
-		tx.executeSql('CREATE TABLE IF NOT EXISTS PRESUPUESTO (id integer primary key AUTOINCREMENT,timespan text,valor real,fecha integer,transacciones integer);');
+		tx.executeSql('CREATE TABLE IF NOT EXISTS PRESUPUESTO (id integer primary key AUTOINCREMENT,timespan text UNIQUE,valor real,fecha integer,transacciones integer);');
     }
 
     function populateDB(tx){
@@ -321,6 +331,16 @@ var app = {
     }
     
     function IngresaClientes(){
+		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+        db.transaction(
+        function (tx){
+                    tx.executeSql('INSERT INTO CLIENTES(id,nombre,cedula,existe)VALUES(?,?,?,?);',["1","Consumidor Final","9999999999999",1],
+                    function(tx,res){
+                        //console.log(res);
+                        console.log("vamos:"+res.insertId+"clientes");
+                    });                
+        },errorCB,successCB);
+		
         /*
         var json = $('#jsonmisclientes').html();
             var mijson = JSON.parse(json);
@@ -332,6 +352,21 @@ var app = {
                 }
             }
         */
+    }
+	
+	
+	   function Ingresaconfig(){
+		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+        db.transaction(
+        function (tx){
+                    tx.executeSql('INSERT INTO CONFIG(nombre)VALUES(?);',["Empresa TEst"],
+                    function(tx,res){
+                        //console.log(res);
+                        console.log("vamos:"+res.insertId+"config");
+                    });                
+        },errorCB,successCB);
+		
+   
     }
     
     function metedatoscliente(itemc){
@@ -609,4 +644,11 @@ function printDiv(divName) {
      window.print();
 
      document.body.innerHTML = originalContents;
+}
+
+function getTimeSpan(){
+		var rn=Math.floor((Math.random() * 10000) + 1);
+		var d = new Date();
+		var n = d.getTime();
+		return n+''+rn;
 }

@@ -54,7 +54,7 @@ function loginPractisis(){
 				
 				
 				$( document ).ready(function() {
-			console.log( "listos espartanos!" );
+			/*console.log( "listos espartanos!" );
 			
 			var smallerMenu = false;	
 			$('.modal').each(centerModal);
@@ -250,7 +250,7 @@ function loginPractisis(){
 						$(this).find('i:first').append('<div class="dynMenu" style="background-color: #f1f1f1; color: #333333; left: 50px; width: 200px; font-family: Roboto,Arial,Helvetica,sans-serif; box-shadow: 1px 0px 6px 0px rgba(50, 50, 50, 0.64); top: 0; position: absolute; z-index: 999999;"><ul style="display: block;">'+ menu +'</div>');
 						}
 					}
-				});
+				});*/
 	
 			
 				
@@ -258,21 +258,6 @@ function loginPractisis(){
 	
 			
 		});
-	
-	DOMOnTap();
-	function DOMOnTap(){
-			
-				$("*[ontap]").each(function(){
-					var element=$(this);
-					var hammertime = Hammer(element).on("tap", function(event) {
-						ev=element.attr("ontap");
-						eval(ev);
-					});
-				});
-			
-			}
-			
-		
 	
 	/*Ajax Load Html out document.ready scripts */
 	function recibeConsultaApi(id_emp,nombreempresa){
@@ -320,12 +305,7 @@ function loginPractisis(){
 				}, 3000);
 		*/
 			}
-	function getTimeSpan(){
-		var rn=Math.floor((Math.random() * 10000) + 1);
-		var d = new Date();
-		var n = d.getTime();
-		return n+''+rn;
-	}
+	
 	
 		function enviaConsultaApi(id){
 			$.post('https://www.practisis.net/nubeposboot/www/ajax/dataservice.php',{

@@ -79,8 +79,8 @@
 						<tr>
 							<td colspan='2' align='center' style='text-align:center;'>
 								<center>
-									<button type="button" class="btn btn-primary" style='display:none;' id='actualiza' onclick='actualizar()'>Actualizar</button>
-									<button type="button" class="btn btn-primary" style='display:;' id='graba' onclick='grabar()'>Grabar</button>
+									<button type="button" class="btn btn-success" style='display:none;' id='actualiza' onclick='actualizar()'>Actualizar</button>
+									<button type="button" class="btn btn-success" style='display:;' id='graba' onclick='grabar()'>Guardar</button>
 									<br/>
 								</center>
 							</td>
@@ -90,14 +90,14 @@
 			</div>
 			<div class='col-xs-1'></div>
 		</div>
-		<div  class="row" >
+		<!---<div  class="row" >
 			<div class='col-xs-1'></div>
 			<div class='col-xs-10'>
 				<div class="panel panel-default" style="padding:15px;">
 					<button type="button" class="btn btn-primary" onclick="window.open('centvia://?udn=Impresion&utt=NubePOS&cru=nubeposv%3a%2f%2f&cruf=nubeposv%3a%2f%2f&c_=!+0+200+200+540+1%0d%0aTEXT+4+0+20+10+Prueba+de+Impresion%0d%0aTEXT+7+0+20+60+NubePOS%0d%0aENDML%0d%0aCONCAT+250+300%0d%0aENDCONCAT%0d%0a%0d%0aPRINT%0d%0a','_blank');">Probar Impresora</button>
 				</div>
 			</div>
-		</div>
+		</div>-->
 	</div>
 <script type="text/javascript">
 	$( document ).ready(function() {
@@ -141,7 +141,7 @@
 		}else{
 			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 			db.transaction(function (tx){
-				tx.executeSql('update CONFIG set nombre = "'+nombreEsta+'" , razon = "'+razon+'", ruc = '+ruc+' , telefono = '+tel+', email = "'+email+'", direccion = "'+dir+'"');
+				tx.executeSql('update CONFIG set nombre = "'+nombreEsta+'" , razon = "'+razon+'", ruc = '+ruc+' , telefono = '+tel+', email = "'+email+'", direccion = "'+dir+'",sincronizar="true"');
 				$('#msjOk').html('Informacion actualizada con Éxito');
 				$('#msjOk').fadeIn('slow');
 				$('#campos').css('display','none');

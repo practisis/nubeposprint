@@ -24,22 +24,21 @@
 				<div class="col-sm-12" align="center">
 					<div class="row"> 
 									
-						<div class="col-md-3" align="left" >
-							<div role="group" class="btn-group">
-								   <div id="includeDropCategory" style=""></div>
-									
-							</div>
-						</div>
-						<div class="col-md-7" align="left">
+						<!--<div class="col-md-3" align="left">
+							<div role="group" class="btn-group">-->
+								   <div id="includeDropCategory" style="display:none;"></div>
+							<!---</div>
+						</div>-->
+						<div class="col-lg-4 col-md-4 col-xs-4" align="left">
 							<div class="input-group" style="width:100%;">
-								<input  type="text" class="form-control" placeholder="Escriba un producto..." id="searchKeyword" onkeyUp="if(event.keyCode==13) {return false; }else{searchProduct($(this))}">
+								<input  type="text" class="form-control" placeholder="Escriba un producto..." id="searchKeyword">
 								<span class="input-group-btn">
-									<button class="btn btn-default" type="button" onclick="searchProduct($('#searchKeyword')); ">Buscar</button>
+									<button class="btn btn-primary" type="button" onclick="searchProduct($('#searchKeyword')); ">Buscar</button>
 								</span>
 							</div><!-- /input-group -->
 						</div>
-						<div class='col-md-2'>
-							<button type='button' class='btn btn-danger' id='nuevoProducto' onclick="envia('nuevoproducto');">Nuevo Producto</button>
+						<div class='col-md-8 col-lg-8 col-xs-8' style='text-align:right;'>
+							<button type='button' class='btn btn-success' id='nuevoProducto' onclick="envia('nuevoproducto');">Nuevo Producto</button>
 						</div>
 						
 						
@@ -356,7 +355,10 @@ function getSearch(){
 		for (var i=0; i < results.rows.length; i++){
 			var row = results.rows.item(i);
 			formulado = row.formulado;
-			timespanCat = row.categoriaid;
+			
+			var timespanCat=0;
+			if(row.categoriaid!=null)
+				timespanCat = row.categoriaid;
 			cat=$('.categoriasPrecargadas[timespan="'+timespanCat+'"]').text();
 			//alert(timespanCat + ">>" + formulado + "==" +cat );
 		}
@@ -396,21 +398,15 @@ function getSearch(){
 					checkServ2='<span class="glyphicon glyphicon-remove"> </span>';  
 				} 
 					
+				var agregarimp=1;
+				if(cargaiva==1)
+					agregarimp+=0.12;
 				
+				if(servicio==1)
+					agregarimp+=0.10;
+					
+				precioConImpuestos=parseFloat(precioproducto)*agregarimp;
 				
-				if(cargaiva == 1 && servicio == 1){
-					precioConImpuestos = (parseFloat(precioproducto * 1.22).toFixed(1));
-				}
-				
-				if(cargaiva == 1 && servicio == 0 || servicio == 'null'){
-					precioConImpuestos = parseFloat((0.12 * precioproducto)+precioproducto).toFixed(1);
-				}
-				if(cargaiva == 0 && servicio == 1){
-					precioConImpuestos = parseFloat((0.1 * precioproducto)+precioproducto).toFixed(1);
-				}
-				if(cargaiva == 0 && servicio == 0 || servicio == 'null'){
-					precioConImpuestos = parseFloat(precioproducto).toFixed(1)
-				}
 					var back='';
 					if(row.color!='')
 						back='background-color:'+row.color;
