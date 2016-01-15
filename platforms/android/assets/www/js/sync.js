@@ -178,7 +178,7 @@ function registrarUser(){
     		var versiones=7;
 			var plan=0;
 			var iddevice=$('#deviceid').html();
-			alert(iddevice+'/'+nombre+'/'+email+'/'+nombre);
+			//alert(iddevice+'/'+nombre+'/'+email+'/'+nombre);
     		$("#btnNewEmp").html('<img src="images/loader.gif"  width="50%" />');
     		$.post("http://practisis.net/registro/registroNubePOS.php", {
     			nombre : nombre,
@@ -195,7 +195,7 @@ function registrarUser(){
     			versiones : versiones,
 				deviceid:iddevice
     		}).done(function(data){
-				alert(data);
+				//alert(data);
                 if(data=='existe'){
 						$("#cargandoTabs").fadeOut();
                         $('.alert-danger').fadeIn('slow');
@@ -280,8 +280,8 @@ function UserLogin(){
     auxpass = pass;
 	$('#btnvalida2').html("<img src='images/loader.gif' width='20px'/>");
 	$.post(apiURL,{action:"login", user : quien , pass : pass, deviceid : iddevice}).done(function(data){
-		alert(quien+'/'+pass+'/'+iddevice);
-		alert(data);
+		//alert(quien+'/'+pass+'/'+iddevice);
+		//alert(data);
 		if(data=='error'){
 			showalert('Los datos son incorrectos.');
 		}
