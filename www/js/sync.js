@@ -17,6 +17,13 @@ function SyncStart(){
 		yaesta=true;
 		$('.navbar').slideDown('slow');
 		envia('dashboard');
+		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+		db.transaction(function(tx){tx.executeSql('SELECT count(*) as cp FROM PRODUCTOS WHERE id_local !=-1 and estado=1;',[],function(tx,results){
+			if(results.rows.item(0).cp==0||results.rows.item(0).cp==null){
+				LaunchBoarding();
+			}
+		});
+		});
 		setTimeout(function(){SincronizadorNormal();},30000);
 		//setInterval(function(){SincronizadorNormal();},3000);
 	}else if(clientesya){
@@ -262,6 +269,11 @@ function SetDataEmpresa(nombre,celular,email,deviceid,id_barra_arriba,ruc,direcc
 					LaunchBoarding();
 					envia("dashboard");
 				}else{
+					tx.executeSql('SELECT count(*) as cp FROM PRODUCTOS WHERE id_local !=-1 and estado=1;',[],function(tx,resulta){
+						if(results.rows.item(0).cp==0||results.rows.item(0).cp==null){
+							LaunchBoarding();
+						}
+					});
 					SyncStart();
 				}
 								
