@@ -23,13 +23,12 @@
     					<label style="color:red;display:none;" class="errorLabel1">Ingrese un nombre válido</label>
     					<br/>
     			</div>
-    			<div class="col-xs-4">
-    				<h4>Código</h4>
-        				<div class="input-group">
-        					<input style="" class="form-control" type="text" autofocus=""  placeholder="Ingrese aquí su código" name='codigoproducto' id='codigoproducto'/>
-        					<span class="input-group-btn"> <button class="btn btn-default" type="button"><span class='fa fa-barcode'></span></button> </span>
-                        </div>
-        		</div>
+                <div class="col-xs-4">
+    				<h4>Categoría </h4>
+    				<input style="width:100%;" class="form-control" type="text" autofocus="" placeholder="Ingrese aquí su categoría" id="search-renderitem" name="search-renderitem" onkeydown='verbusquedacateg();'/>
+    				<label style="color:red;display:none;" class="errorLabel2">Ingrese una categoría</label>
+    				<input type='hidden' style='display:none;' id='idcategoria'/>
+    			</div>
             </div>
         </div>
 
@@ -46,11 +45,12 @@
     				<label style="color:red;display:none;" class="errorLabel">Ingrese un precio válido</label>
     			</div>
                 <div class="col-xs-4">
-    				<h4>Categoría </h4>
-    				<input style="width:100%;" class="form-control" type="text" autofocus="" placeholder="Ingrese aquí su categoría" id="search-renderitem" name="search-renderitem" onkeydown='verbusquedacateg();'/>
-    				<label style="color:red;display:none;" class="errorLabel2">Ingrese una categoría</label>
-    				<input type='hidden' style='display:none;' id='idcategoria'/>
-    			</div>
+    				<h4>Código</h4>
+        				<div class="input-group">
+        					<input style="" class="form-control" type="text" autofocus=""  placeholder="Ingrese aquí su código" name='codigoproducto' id='codigoproducto'/>
+        					<span class="input-group-btn"> <button class="btn btn-default" type="button"><span class='fa fa-barcode'></span></button> </span>
+                        </div>
+        		</div>
             </div>
 		</div>
 
