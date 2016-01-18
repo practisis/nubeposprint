@@ -225,9 +225,6 @@ valor="0 @0 ";
 							<td style='vertical-align:middle;'>
 								<input placeholder='Desde' type="text" class='form-control' id="fechadesde" name="fechadesde" style='margin:5px;' readonly />
 							</td>
-							<!--<td style='vertical-align:middle;'>
-								<input placeholder='Hasta' type="text" class='form-control' id="fechahasta" name="fechahasta" style='margin:5px;'/>
-							</td>-->
 							<td  style='vertical-align:middle;'>
                                 <button type='button' class="btn btn-primary" onclick="page=0; getSearch(); return false;">Filtrar</button>
 							</td>
@@ -240,9 +237,6 @@ valor="0 @0 ";
 						<tr>
 							<td style='vertical-align:middle;width: 20%;'>
 							</td>
-							<!--<td style='vertical-align:middle;'>
-								<input placeholder='Hasta' type="text" class='form-control' id="fechahasta" name="fechahasta" style='margin:5px;'/>
-							</td>-->
 							<td  style='vertical-align:middle;'>
 								  <button class="btn btn-success"  style="width:200px;margin-right:15px;" id="imprimirDetalle" type="button" >Imprimir Cierre de Caja</button>
 							</td>
@@ -359,11 +353,13 @@ function getSearch(){
 			var func="EditarFactura("+row.id+");";
 			var datosfact=JSON.parse(row.fetchJson);
 			var totalf=parseFloat(datosfact.Pagar[0].factura.total).toFixed(2);
-            totalfinal += parseFloat(totalf);
 			var anulada='No';
-			if(row.anulada==1)
+			if(row.anulada==1){
 				anulada='Si';
-			inhtml+='<tr onclick="" ><td>'+fechaformat+'</td><td>'+row.clientName+'</td><td>'+row.RUC+'</td><td>'+("000000000" + row.id).slice(-9)+'</td><td>'+anulada+'</td><td style="text-align:right;">'+totalf+'</td><td><button class="btn btn-default btn-sm" onclick="'+func+'"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>';
+            }else{
+                totalfinal += parseFloat(totalf);
+            }
+			inhtml+='<tr onclick="" ><td>'+fechaformat+'</td><td>'+row.clientName+'</td><td>'+row.RUC+'</td><td>'+datosfact.Pagar[0].factura.numerofact+'</td><td>'+anulada+'</td><td style="text-align:right;">'+totalf+'</td><td><button class="btn btn-default btn-sm" onclick="'+func+'"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>';
 		}
         inhtml+='<tr><td></td><td></td><td></td><td></td><td style="text-align: left;"><b>TOTAL$</b></td><td style="text-align:right;"><b>'+totalfinal.toFixed(2)+'</b></td></tr>';
         $('#totalencabezado').html(totalfinal.toFixed(2));
@@ -376,7 +372,7 @@ function getSearch(){
             //var dba = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
         	//db.transaction(function(txa){
             var totalfaux = 0;
-        		tx.executeSql('select fetchJson from FACTURAS where '+queryextra+' and paymentsUsed="'+v['id']+'" ORDER BY id desc',[],function(tx,resulta){
+        		tx.executeSql('select fetchJson from FACTURAS where anulada=0 and '+queryextra+' and paymentsUsed="'+v['id']+'" ORDER BY id desc',[],function(tx,resulta){
                     for (var k=0; k < resulta.rows.length; k++){
                     var rowa = resulta.rows.item(k);
                     var datosfacta=JSON.parse(rowa.fetchJson);

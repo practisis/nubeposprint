@@ -281,6 +281,10 @@ function AnularFactura(){
 			db.transaction(function(tx3){
 				tx3.executeSql('UPDATE FACTURAS SET anulada=? where id=?',[1,id],function(tx3,results3){
 					console.log(results3);
+                    showalert("Factura anulada con éxito.");
+                    $('#factanulada').fadeIn('slow');
+                    $('#btnanularf').fadeOut('slow');
+                    //location.reload(true);
 				},errorCB,successCB);
 				});
 			/**/
