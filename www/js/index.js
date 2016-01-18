@@ -36,7 +36,6 @@ function envia(donde){
 					$('#correoMal').fadeOut('slow');
 					$('#main').load(lugar,function(){
 						$("#simple-menu").click();
-						loaded();
 					});						
 						//DOMOnTap();
 						//loaded();
@@ -97,10 +96,11 @@ var app = {
 		
 		//alert("device Ready>>" + device.uuid);
 		//$('#deviceid').html(device.uuid);
+		//setInterval(function(){updateOnlineStatus()},60000);
 		
 		window.StarIOAdapter = {};
 		var handle_error_callback = function(error_message) {
-			alert(error_message);
+			console.log(error_message);
 		};
 
 		/**
@@ -234,7 +234,7 @@ var app = {
                 db.transaction(IngresaClientes,errorCB,successCB);
         });
         //tx.executeSql('DROP TABLE IF EXISTS FACTURAS');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS FACTURAS (id integer primary key AUTOINCREMENT,timespan text ,clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,vauleCxC,paymentConsumoInterno,tablita,aux,acc,echo,fecha,anulada integer,sincronizar boolean default "false");');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS FACTURAS (id integer primary key AUTOINCREMENT,timespan text ,clientName,RUC,address,tele,fetchJson,paymentsUsed,cash,cards,cheques,vauleCxC,paymentConsumoInterno,tablita,aux,acc,echo,fecha,anulada integer default 0,sincronizar boolean default "false");');
         tx.executeSql('CREATE TABLE IF NOT EXISTS CAJA (id integer primary key AUTOINCREMENT,hora_ingreso text,hora_salida text,activo integer,sobrante_faltante real,total real,establecimiento text,autorizacion text);');
         tx.executeSql('CREATE TABLE IF NOT EXISTS CAJA_APERTURA_CIERRE (id integer primary key AUTOINCREMENT,id_caja integer,valor_apertura real,movimiento integer);',[],function(tx,result){
             //console.log('Ana');

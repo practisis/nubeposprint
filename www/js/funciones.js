@@ -1,191 +1,13 @@
 var currentCantidad=0;
 var currentAction='';
-// function dale(){
-// //alert("vamos");
-// cordova.plugins.barcodeScanner.scan(
-      // function (result) {
-		// var cod_barras = result.text;
-         // // alert(id);
-         // // document.getElementById("recibeScan").value = id;
-		// var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		// db.transaction(
-			// function (tx){
-				// tx.executeSql('SELECT * FROM PRODUCTOS WHERE codigo='+cod_barras+' ORDER BY formulado asc',[],function(tx,res){
-					// if(res.rows.length>0){
-						// for(m=0;m<res.rows.length;m++){
-						// var row=res.rows.item(m);
-						// if(isNaN(row.precio)){row.precio = 0;}
-						// var impuestos='';
-						// var impuestosid='';
-						// if(row.cargaiva==1){
-							// impuestos+='0.12';
-							// impuestosid+='1';
-						// }
-						// $('#listaProductos').append('<div id="'+ row.id+'" data-precio="'+ row.precio +'" data-impuestos="'+impuestos +'" data-impuestosindexes="'+impuestosid +'" data-formulado="'+ row.formulado +'" onclick="agregarCompra(this); return false;" class="producto categoria_producto_'+row.categoriaid +'">'+ row.formulado +'</div>');
-						// }
-						// $('.producto').hide();
-						// init2(categoria);
-						// showProducts(categoria);
-					// }
-				// });				
-			// },errorCB,successCB
-		// );
-		 
-      // }, 
-      // function (error) {
-          // alert("Scanning failed: " + error);
-      // }
-   // );
-   
-// }
 
 var altolistaprod=0;
 var pantAlto=$('#content').height();
 var pantAncho=$('#content').width();
 var vertical=false;
 var misdenominaciones=[0.01,0.05,0.10,0.25,0.50,1,5,10,20,100];
-	
-function init(){
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(
-	function (tx){
-		tx.executeSql('SELECT id FROM CAJA WHERE activo=1;',[],
-		function(tx,res){
-			if(res.rows.length==0){
-				$('#contentCaja2').modal('show');
-			}
-		});				
-	},errorCB,successCB);
-	ColocarFormasPago();
-	$('#central').css("width",parseInt($('#content').css('width'))-20);
-	$('#central').css("height",parseInt($('#content').css('height'))-20);
-	pantAlto=parseInt($('#content').css('height'));
-	pantAncho=parseInt($('#content').css('width'))-20;
-	formarCategorias();
-	
-	$('.numero').on('mouseover',function(){
-		var cual=$(this).attr('cual');
-		$('#f_'+cual).css('display','none');
-		$('#fh_'+cual).css('display','block');
-	});
-	
-	$('.numero').on('mouseout',function(){
-		var cual=$(this).attr('cual');
-		$('#fh_'+cual).css('display','none');
-		$('#f_'+cual).css('display','block');
-	});
-	
-	$('.numero').on('click',function(){
-		PlaySound(1);
-		var accion = $.trim($(this).html());
-		if(accion == '.'){
-			if($('.cantidad').html().indexOf('.') == -1){
-				if($('.cantidad').html() == ''){
-					$('.cantidad').append('0'+ accion);
-					}
-				else{
-					$('.cantidad').append(accion);
-					}
-				}
-			return false;
-			}
-		else if($.isNumeric(accion) === true){
-			$('.cantidad').append(accion);
-			return false;
-			}
-			
-		var fetchHTML = $.trim($('.cantidad').html());
-		$('.cantidad').html(fetchHTML.substring(0,(fetchHTML.length-1)));
-		});
-		
-		$('.producto').on('click',function(){
-			PlaySound(2);
-		})
-		$('.boton,.botonr').on('click',function(){
-			PlaySound(6);
-		});
-	
-	$('.directionProducts').on('click',function(){
-		var direction = $(this).data('dir');
-		var category = $('#category').val();
-		var pager = $('#pager').val();
-		var maxPage = $('#maxPage').val();
-		
-		if(direction == 'right'){
-			if(pager == maxPage){
-				$('#nav_der').css('display','none');
-				return false;
-				}
-			$('#pager').val(parseInt(pager) + 1);
-			}
-		else{
-			if(pager == 1){
-				$('#nav_izq').css('display','none');
-				return false;
-				}
-			$('#pager').val(parseInt(pager) -1);
-			}
-			
-		showProducts(category,direction);
-		});
-		//init2();
-		
-}
 
-$(window).resize(function (){
-	//Init3();
-	/*$('#central').css("width",parseInt($('#content').css('width'))-20);
-	$('#central').css("height",parseInt($('#content').css('height'))-20);
-	pantAlto=parseInt($('#content').css('height'));
-	pantAncho=parseInt($('#content').css('width'))-20;
-	init2();
-	$("#contentCaja").css("left" , ( ($(window).width() - 500 ) / 2) + "px");
-	$("#contentCaja").css("top" , ( ($(window).height() - 300 ) / 2) + "px");*/
-});
 
-$(window).bind("orientationchange", function(event){
-	//Init3();
-	/*$('#central').css("width",parseInt($('#content').css('width'))-20);
-	$('#central').css("height",parseInt($('#content').css('height'))-20);
-	pantAlto=parseInt($('#content').css('height'));
-	pantAncho=parseInt($('#content').css('width'))-20;
-	init2();*/
-});
-
-/*function ActivarCategoria(cual,categoria){
-	$('#category').val(categoria);
-	$('#controller').val(1);
-	$('.directionProducts').css('visibility','hidden');
-	$('#listaProductos').html('');
-	var fila=cual.parentNode.parentNode;
-	var miscateg=fila.getElementsByTagName('div');
-	for(k=0;k<miscateg.length;k++){
-		if(miscateg[k].id!='listaCategorias' && miscateg[k].id!='contenidoCategorias')
-			miscateg[k].className="categoria esCategoria";
-	}
-	cual.className="categoriaActiva esCategoria";
-	
-	var json = $('#jsonProductos').html();	
-	var evalJson = eval(''+json+'');
-	for(var j in evalJson){
-		for(var k in evalJson[j]){
-			if(k == 'Tipo'+ categoria){
-				for(i = 0; i < evalJson[j][k].length; i++){
-					var item = evalJson[j][k][i];
-					if(isNaN(item.formulado_precio)){
-						item.formulado_precio = 0;
-					}	
-					$('#listaProductos').append('<div id="'+ item.formulado_id +'" data-precio="'+ item.formulado_precio +'" data-impuestos="'+ item.formulado_impuestos +'" data-impuestosindexes="'+ item.formulado_tax_id +'" data-formulado="'+ item.formulado_nombre +'" onclick="agregarCompra(this); return false;" class="producto categoria_producto_'+ item.formulado_tipo +'">'+ item.formulado_nombre +'</div>');
-					}
-				}
-			}
-		}
-	$('.producto').hide();
-	//$('.categoria_producto_'+ categoria).show();
-	init2(categoria);
-	showProducts(categoria);
-	}*/
-	
 function ActivarCategoria(cual,categoria){
 	console.log(categoria);
 	$('#category').val(categoria);
@@ -1175,6 +997,7 @@ function addDiscount(){
 			//$('#totalmiFactura').val(parseFloat(totales) + parseFloat(discount));
 			$('#totalmiFactura').val(parseFloat(totales));
 			$('#total').html('$'+ (parseFloat(totales) - parseFloat(discount)).toFixed(2));
+			$('#payButton').html('PAGAR $'+ (parseFloat(totales) - parseFloat(discount)).toFixed(2));
 			$('#descuentoFactura').val(discount);
 			
 			$('#popupDiscount').modal("hide");
@@ -1473,8 +1296,17 @@ function ColocarFormasPago(){
 				mihtml+= '</div>';
 				mihtml+= '</td>';
 				mihtml+= '<td class="columna2">';
-				mihtml+= '<div style="height:100%; background-color:#F7F7F7; border-top-right-radius: 10px; border-bottom-right-radius:10px; border:1px solid #CCCCCC; text-align:center; padding-right:10px;">';
-				mihtml+= '<input class="paymentMethods" paymentMethod="'+evalJson[k][j].nombre+'" idPaymentMethod="'+evalJson[k][j].id+'" id="payment'+evalJson[k][j].nombre.replace(" ","")+'" style="height:100%; width:100%; background:transparent; border:0px; text-align:right;" placeholder="0.00" value="" onclick="CambiarMetodo('+"'"+evalJson[k][j].nombre.replace(" ","")+"'"+');" type="number" min="0.00" step="0.10" onfocus="this+select();" min="0" onchange="CambiarMetodo('+"'"+evalJson[k][j].nombre.replace(" ","")+"'"+');" onkeypress="return soloNumerost(event);"/>';
+				var read='';
+				var fondo='transparent';
+				var inputfondo='#F7F7F7';
+				if(evalJson[k][j].id!=1){
+					read='readonly';
+					fondo='#DDD';
+					inputfondo='#DDD;'
+				}
+					
+				mihtml+= '<div style="height:100%; background-color:'+inputfondo+'; border-top-right-radius: 10px; border-bottom-right-radius:10px; border:1px solid #CCCCCC; text-align:center; padding-right:10px;">';
+				mihtml+= '<input class="paymentMethods" paymentMethod="'+evalJson[k][j].nombre+'" idPaymentMethod="'+evalJson[k][j].id+'" id="payment'+evalJson[k][j].nombre.replace(" ","")+'" style="height:100%; width:100%; background:'+fondo+'; border:0px; text-align:right;" placeholder="0.00" value="" onclick="CambiarMetodo('+"'"+evalJson[k][j].nombre.replace(" ","")+"'"+');" type="number" min="0.00" step="0.10" onfocus="this+select();" onchange="CambiarMetodo('+"'"+evalJson[k][j].nombre.replace(" ","")+"'"+');" onkeypress="return soloNumerost(event);" '+read+' />';
 				mihtml+= '</div>';
 				mihtml+= '</td><td width="5%"><button class="btn" type="button" onclick="ResetPagos('+evalJson[k][j].id+');"><span class="glyphicon glyphicon-trash"></span></button></td>';
 				mihtml+= '</tr>';
@@ -2350,6 +2182,7 @@ function elegirTarjeta(id){
 		var clase=$('#card_'+id).attr('class');
 		clase=clase.replace('btn-success','btn-primary');
 		$('#card_'+id).attr('class',clase);
+		$('#cardgroup').css("display","none");
 	}
 		
 	
@@ -2377,8 +2210,10 @@ function elegirTarjeta(id){
 	
 	$('#valortarjeta').val(parseFloat($('#card_'+id).attr('data-value')).toFixed(2));
 	if($('#cardv_'+id).html()==''){
-		if(parseFloat($('#valortarjeta').val())>0)
+		if(parseFloat($('#valortarjeta').val())>0){
 			$('#cardv_'+id).html(' ('+$('#valortarjeta').val()+')');
+			$('#cardgroup').fadeIn();
+		}
 		else
 			$('#cardv_'+id).html('');
 	}

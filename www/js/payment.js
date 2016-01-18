@@ -752,6 +752,10 @@ function cancelPayment(){
 	$('#changeFromPurchase').html('0.00');
 	//$('#paymentModule').modal('hide');
 	$('#paymentModule').slideUp();
+	ResetPagos(1);
+	ResetPagos(2);
+	ResetPagos(3);
+	ResetPagos(4);
 	}
 
 
@@ -2322,11 +2326,18 @@ function mostrarClientes(){
 	}
 	);
 	$('#cedulaP').change(function(){
-		if($('#nombreP').length==0){
-			$('#busquedacliente').val('9999999999999');
-			$('#clientefind').html("Consumidor Final");
-			BuscarCliente(13);
+		if(cedula()){
+				if($('#nombreP').length==0){
+					$('#busquedacliente').val('9999999999999');
+					$('#clientefind').html("Consumidor Final");
+					BuscarCliente(13);
+				}
+		}else{
+			showalert("La cédula ingresada no es correcta.");
+			$('#cedulaP').val('');
+			$('#cedulaP').focus();
 		}
+	
 	});	
 	$('#cedulaP').keyup(function(event){
 		$('#clientefind').html('');
@@ -2361,7 +2372,9 @@ function mostrarClientes(){
 }
 
 function cedula () {
-numero = document.getElementById("cedula").value; 
+numero = document.getElementById("cedulaP").value;
+if(cedula=='9999999999999')
+	return true;
 var suma = 0;
 var residuo = 0;
 var pri = false;
@@ -2447,12 +2460,12 @@ digitoVerificador = residuo==0 ? 0: modulo - residuo;
 /* ahora comparamos el elemento de la posicion 10 con el dig. ver.*/
 if (pub==true){
 if (digitoVerificador != d9){
-console.log('El ruc de la empresa del sector p?blico es incorrecto.');
+console.log('El ruc de la empresa del sector público es incorrecto.');
 return false;
 }
 /* El ruc de las empresas del sector publico terminan con 0001*/
 if ( numero.substr(9,4) != '0001' ){
-console.log('El ruc de la empresa del sector p?blico debe terminar con 0001');
+console.log('El ruc de la empresa del sector público debe terminar con 0001');
 return false;
 }
 }
@@ -2469,7 +2482,7 @@ return false;
 
 else if(nat == true){
 if (digitoVerificador != d10){
-console.log('El n?mero de c?dula de la persona natural es incorrecto.');
+console.log('El n?mero de cédula de la persona natural es incorrecto.');
 return false;
 }
 if (numero.length >10 && numero.substr(10,3) != '001' ){

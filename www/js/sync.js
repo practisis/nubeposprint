@@ -354,8 +354,11 @@ function DatosRecurrentes(cual){
 			$('#JSONpresupuestoNube').html(JSON.stringify(jsonSync.BigJson[4].Presupuesto));
 			console.log( ">>>>>>recurrente");
 			DatosRecurrentes(1);
+			updateOnlineStatus("ONLINE");
+		}).fail(function(){
+			updateOnlineStatus("OFFLINE");
+			setTimeout(function(){SincronizadorNormal()},60000);
 		});
-		
 	}
 	if(cual==1){
 		console.log("Datos Nube 1: Categorias");
@@ -392,6 +395,10 @@ function DatosRecurrentes(cual){
 					}).done(function(response){
 							localStorage.setItem("dataupdate","");
 							DatosRecurrentes(2);
+							updateOnlineStatus("ONLINE");
+					}).fail(function(){
+						updateOnlineStatus("OFFLINE");
+						setTimeout(function(){SincronizadorNormal()},60000);
 					});
 					
 				});
@@ -431,6 +438,10 @@ function DatosRecurrentes(cual){
 						console.log(response);
 						localStorage.setItem("dataupdate","");
 						DatosRecurrentes(3);
+						updateOnlineStatus('ONLINE');
+					}).fail(function(){
+						updateOnlineStatus("OFFLINE");
+						setTimeout(function(){SincronizadorNormal()},60000);
 					});
 				});
 		}	
@@ -469,6 +480,10 @@ function DatosRecurrentes(cual){
 						console.log(response);
 						localStorage.setItem("dataupdate","");
 						DatosRecurrentes(4);
+						updateOnlineStatus('ONLINE');
+					}).fail(function(){
+						updateOnlineStatus("OFFLINE");
+						setTimeout(function(){SincronizadorNormal()},60000);
 					});
 		});
 		}
@@ -511,6 +526,10 @@ function DatosRecurrentes(cual){
 						$("#theProgress").css("width" , "0%");
 						$("#finalizado").fadeIn();
 						$("#contentStepSincro").css("display","none");
+						updateOnlineStatus('ONLINE');
+					}).fail(function(){
+						updateOnlineStatus("OFFLINE");
+						setTimeout(function(){SincronizadorNormal()},60000);
 					});
 				});
 		}
@@ -640,6 +659,10 @@ function PostaLaNube(arraydatos,cual,accion,t){
 				SubirDatosaNube(cual+1);
 			}
 		}
+		updateOnlineStatus("ONLINE");
+	}).fail(function(){
+			updateOnlineStatus("OFFLINE");
+			setTimeout(function(){SincronizadorNormal()},60000);
 	});
 } 
 

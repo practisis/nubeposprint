@@ -24,9 +24,9 @@ function loginPractisis(){
 	}
 
 	
-	function updateOnlineStatus(msg) {
+	function updateOnlineStatus(condition) {
 					var status = document.getElementById("status");
-					var condition = navigator.onLine ? "ONLINE" : "OFFLINE";
+					//var condition = navigator.onLine ? "ONLINE" : "OFFLINE";
 					var state = document.getElementById("state");
 					var log = document.getElementById("log");
 					$('#conexion').val(condition);
@@ -40,224 +40,18 @@ function loginPractisis(){
 						$('#cloudIndex').css('display','none');
 						$('#cloudIndexOff').css('display','block');
 					}
-				}
-				function loaded() {
-					updateOnlineStatus("load");
-					//setInterval(updateOnlineStatus, 3000);
-					document.body.addEventListener("offline", function () { updateOnlineStatus("offline") }, false);
-					document.body.addEventListener("online", function () { updateOnlineStatus("online") }, false);
-				}
-				
-
-				
-				
-				
-				
-				$( document ).ready(function() {
-			/*console.log( "listos espartanos!" );
-			
-			var smallerMenu = false;	
-			$('.modal').each(centerModal);
-			//$('#myModal').modal('show');
-			//envia('dashboard');
-			//envia('cloud');
-			//onDeviceReady();
-			
-			
-			
-			
-			function saberNuevos(){
-				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-				db.transaction(function(tx){
-				var excluir = 0;
-				tx.executeSql('SELECT * from logActualizar where final <> ? ',[excluir],function(tx,results){
-					var actualizar='';
-					for (var i=0; i < results.rows.length; i++){
-						var row = results.rows.item(i);
-						var tabla = row.tabla;
-						var actual = row.final;
-						console.log('tabla : '+tabla+'  cantidad : ' + actual);
-						actualizar+='<tr><td align="left">'+tabla+'</td><td align="center">Actualizaciones : '+actual+'</td></tr>';
-						muestraActualiziones(actualizar);
-					}
-					
-				});
-			
-				},errorCB,successCB);
-			}
-		
-		
-			function muestraActualiziones(datos){
-					$('#recibeAlertasActualizaciones').html("<table style='width:100%;' border='0' cellpadding='10px' class='table table-striped' ><tr><th>Accion</th><th>Cantidad</th></tr>"+datos+"</table>");
-					$('#alertaNuevos').fadeIn('slow');
-					setTimeout(function() {
-						$('#alertaNuevos').fadeOut('slow');
-					},1500);
-					
-				}
-			
+	}
 	
+	function loaded() {
+		updateOnlineStatus();
+		//setInterval(updateOnlineStatus, 3000);
+		//document.body.addEventListener("offline", function () { updateOnlineStatus("offline") }, false);
+		//document.body.addEventListener("online", function () { updateOnlineStatus("online") }, false);
+	}
+				
 
-
-
-		function centerModal(){ 
-			$(this).css('display', 'block');
-			var $dialog = $(this).find(".modal-dialog");
-			var offset = ($(window).height() - $dialog.height()) / 2;
-			// Center modal vertically in window
-			$dialog.css("margin-top", offset);
-		}
-
-		$(window).on('resize',function(){
-				$('.modal:visible').each(centerModal);
-				if($(this).width() >= 768){
-					$('#nav-container').data('isshown','false');
-					}
-			
-				if($('#nav-container').data('isshown') == 'false'){
-					if($(this).width() >= 768){
-						$('#nav-container').css('left','0px');
-						$('#content').css('left','220px');
-						$('.menuItem').css('left','0px');
-						smallerMenu = false;
-						}
-					else{
-						$('#nav-container').css('left','-220px');
-						$('#content').css('left','0px');
-						$('.menuItem').css('left','0px');
-						}
-					}
-		});
 				
-		$('.menu-button').on('click',function(){
-				if($('#nav-container').css('left') == '0px'){
-					$('#nav-container').css('left','-220px').data('isshown','false');
-					$('#content').css('left','0px');
-					}
-				else{
-					$('#nav-container').css('left','0px').data('isshown','true');
-					$('#content').css('left','220px');
-					}
-		});
-		
-		$('.toggle-min').on('click',function(){
-			if ($('#nav-container, .menuItem, #content').is(':animated')){
-				return false;
-			}
-			$('li').find('ul').slideUp();
-		
-			if(smallerMenu === false){
-				$('#content').animate({
-					left : '50px'
-					});
-				
-				$('#nav-container').animate({
-					left : '-220px',
-					},function(){
-						$('.menuItem').each(function(index,object){
-							$(this).delay(index * 100);
-							
-							$(object).animate({
-								left : '220px'},{
-									duration: 800,
-									easing: 'swing'
-									});
-							});
-						});
-				
-				setTimeout(function(){
-					$('.menuItem').animate({
-						left : '170px'
-						});
-						
-					$('#nav-container').animate({
-						left : '-170px'
-						});
-					},1500)
-				
-				smallerMenu = true;
-				}
-			else{
-				$('li.open').find('ul').slideDown();
-			
-				$('#content').animate({
-					left : '220px'
-					});
-					
-				$('#nav-container').animate({
-					left : '0'
-					});
-				
-				$('.menuItem').animate({
-					left : '0px'
-					});
-					
-				smallerMenu = false;
-				}
-			});
-		
-		$('#nav > li').on('mouseenter',function(){
-			if(smallerMenu === true){
-				if($(this).closest('li').children('ul').length > 0){
-					var menu = '';
-					$(this).closest('li').children('ul').children('li').each(function(){
-						
-						var getHTML = $(this).html();
-						var newHTML = $(getHTML);
-						var url = newHTML.attr('href');
-						newHTML.find('i').css({'padding' : '0px', 'padding-left' : '10px', 'padding-right' : '10px', 'text-align' : 'left'});
-						menu += '<li style="text-align: left;"><a style="padding: 0px;" href="'+ url +'">'+ newHTML.html() +'</a></li>';
-						});
-						
-					$(this).find('i:first').append('<div class="dynMenu" style="background-color: #f1f1f1; color: #333333; left: 50px; width: 200px; font-family: Roboto,Arial,Helvetica,sans-serif; box-shadow: 1px 0px 6px 0px rgba(50, 50, 50, 0.64); top: 0; position: absolute; z-index: 999999;"><ul style="display: block;">'+ menu +'</div>');
-					}
-				}
-		});
-			
-			$('#nav > li').on('mouseleave',function(){
-				$('.dynMenu').remove();
-			});
-
-			$('#nav li').on('click',function(event){
-				if(smallerMenu === false){
-					event.stopPropagation();
-					if($('#nav > li > a').attr('href') == '#'){
-						if($(this).find('ul').length > 0){
-							if($(this).find('ul').css('display') == 'block'){
-								$('#nav-wrapper ul#nav li ul').removeClass('open');
-								$('#nav-wrapper ul#nav li ul').slideUp();
-								}
-							else{
-								$('#nav-wrapper ul#nav li').removeClass('open');
-								$('#nav-wrapper ul#nav li ul').slideUp();
-								$(this).addClass('open');
-								$(this).find('ul').slideDown();
-								}
-							}
-						}
-				}else{
-					if($(this).closest('li').children('ul').length > 0){
-						$('.dynMenu').remove();
-						var menu = '';
-						$(this).closest('li').children('ul').children('li').each(function(){
-							var getHTML = $(this).html();
-							var newHTML = $(getHTML);
-							newHTML.find('i').css({'padding' : '0px', 'padding-left' : '10px', 'padding-right' : '10px', 'text-align' : 'left'});
-							
-							menu += '<li style="text-align: left;">'+ newHTML.html() +'</li>';
-							});
-							
-						$(this).find('i:first').append('<div class="dynMenu" style="background-color: #f1f1f1; color: #333333; left: 50px; width: 200px; font-family: Roboto,Arial,Helvetica,sans-serif; box-shadow: 1px 0px 6px 0px rgba(50, 50, 50, 0.64); top: 0; position: absolute; z-index: 999999;"><ul style="display: block;">'+ menu +'</div>');
-						}
-					}
-				});*/
-	
-			
-				
-				
-	
-			
-		});
+	$( document ).ready(function(){});
 	
 	/*Ajax Load Html out document.ready scripts */
 	function recibeConsultaApi(id_emp,nombreempresa){
