@@ -186,9 +186,10 @@ function ObtenerDatosDashboard(){
 	},errorCB,successCB);
 	
 	//querysubtotal
+    //console.log(fdesde.getTime()+'*12*'+fhasta.getTime());
 	db.transaction(
 		function (tx){
-			tx.executeSql('select sum(f.cantidad*f.precio_unitario) as total from facturas_formulados f,facturas p where f.timespan_factura=p.timespan and p.fecha>=? and p.fecha<=? ',[fdesde.getTime(),fhasta.getTime()],
+			tx.executeSql('select sum(f.cantidad*f.precio_unitario) as total from facturas_formulados f,facturas p where f.timespan_factura=p.timespan and p.anulada=0 and p.fecha>=? and p.fecha<=? ',[fdesde.getTime(),fhasta.getTime()],
 			function(tx,res){
 				if(res.rows.length>0){
 					console.log(res);
