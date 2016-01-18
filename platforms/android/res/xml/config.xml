@@ -11,7 +11,7 @@
     <feature name="Device">
         <param name="android-package" value="org.apache.cordova.device.Device" />
     </feature>
-    <name>cloudprint2</name>
+    <name>PractiPOS 2.0</name>
     <description>
         Prueba de Impresiones
     </description>

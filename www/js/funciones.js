@@ -940,10 +940,17 @@ function pagar(){
 	
 	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 	var serie='001';
-	var establecimiento='001'
+	var establecimiento='001';
 		db.transaction(function (tx){
+			tx.executeSql('SELECT establecimiento,serie from config where id=1',[],function(tx,res2){
+				serie=res2.rows.item(0).serie;
+				establecimiento=res2.rows.item(0).establecimiento;
+				//alert(serie+'/'+establecimiento);
+				$('#seriesfact').html(serie+'-'+establecimiento+'-');
+			});
 			tx.executeSql('SELECT MAX(aux)+1 as max FROM FACTURAS',[],
 			function(tx,res){
+				
 				console.log(res);
 				var ceros='';
 				var coun=0;
@@ -962,7 +969,6 @@ function pagar(){
 					ceroscount++;
 				}
 				$('#invoiceNr').val(ceros+nfact);
-				$('#seriesfact').html(serie+'-'+establecimiento+'-');
 				$('#invoiceNrComplete').val(serie+'-'+establecimiento+'-'+ceros+nfact);
 			});
 		});
@@ -2487,13 +2493,26 @@ function VerificarNumero(valor){
 								ceroscount++;
 							}
 							$('#invoiceNr').val(ceros+nfact);
-							$('#invoiceNrComplete').val(serie+'-'+establecimiento+'-'+ceros+nfact);
 							$('#invoiceNr').effect('highlight',{},'normal');
+						});
+						
+						tx2.executeSql('SELECT serie,establecimiento from config where id=1',[],function(tx2,results){
+							var miserie=results.rows.item(0).serie;
+							var miestablecimiento=results.rows.item(0).establecimiento;
+							var invoicenr=$('#invoiceNr').val();
+							$('#invoiceNrComplete').val(miserie+'-'+miestablecimiento+'-'+invoicenr);
 						});
 					});
 				}else{
 					$('#invoiceNr').effect('highlight',{},'normal');
-					$('#invoiceNrComplete').val(serie+'-'+establecimiento+'-'+$('#invoiceNr').val());
+					db.transaction(function (tx2){
+					tx2.executeSql('SELECT serie,establecimiento from config where id=1',[],function(tx2,results){
+							var miserie=results.rows.item(0).serie;
+							var miestablecimiento=results.rows.item(0).establecimiento;
+							var invoicenr=$('#invoiceNr').val();
+							$('#invoiceNrComplete').val(miserie+'-'+miestablecimiento+'-'+invoicenr);
+						});
+					});
 				}
 			});
 	});

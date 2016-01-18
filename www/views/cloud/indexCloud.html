@@ -289,12 +289,12 @@ $(document).ready(function(){
 		$('#fadeRow,#contentStepSincro').css("display","none");
 		if(localStorage.getItem("idbarra")==null){
 			$('#demoGratis').fadeIn();
+			$('.navbar').slideUp();
 			$('#finalizado').css('display','none');
 		}else{
 			$('#finalizado').fadeIn();
 			$('#demoGratis').css("display","none");
 		}
-		
 	}else{
 		$('#finalizado,#demoGratis,#fadeRow').css("display","none");
 		$('#contentStepSincro').fadeIn();

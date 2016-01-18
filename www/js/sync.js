@@ -11,6 +11,7 @@ function SyncStart(){
 	console.log(idbarra+'*'+categoriasya+'*'+productosya+'*'+clientesya);
 	if((clientesya||productosya||categoriasya||idbarra)&&presupuestoya==false){
 		envia('cloud');
+		$('.navbar').slideDown();
 	}
 	if(presupuestoya){
 		$('#fadeRow,#demoGratis').css("display","none");
@@ -46,7 +47,7 @@ function ExtraeDatosApi(donde){
 		envia('cloud');
 	}else if(donde==1){
 		console.log("Datos API 1: Categorias");
-		$(".navbar").slideUp();
+		//$(".navbar").slideUp();
 		$("#demoGratis,#fadeRow,#finalizado").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("Sincronizando Categorías...");
@@ -72,7 +73,7 @@ function ExtraeDatosApi(donde){
 			
 	}else if(donde==2){
 		console.log("Datos API 2: Productos");
-		$(".navbar").slideUp();
+		//$(".navbar").slideUp();
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("Sincronizando Productos...");
@@ -96,7 +97,7 @@ function ExtraeDatosApi(donde){
 		
 	}else if(donde==3){
 		console.log("Datos API 3: Clientes");
-		$(".navbar").slideUp();
+		//$(".navbar").slideUp();
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("Sincronizando Clientes...");
@@ -120,7 +121,7 @@ function ExtraeDatosApi(donde){
 			});
 	}else if(donde==4){
 		console.log("Datos API 4: Presupuesto");
-		$(".navbar").slideUp();
+		//$(".navbar").slideUp();
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("Sincronizando Presupuesto...");
@@ -305,6 +306,7 @@ function UserLogin(){
 			localStorage.setItem("idbarra",datosaux[2]);
 			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 			db.transaction(iniciaDB,errorCB,function(){SetDataEmpresa(datosaux[1],datosaux[3],quien,iddevice,datosaux[2],datosaux[4],datosaux[5],true)});
+			$('.navbar').slideDown();
 			//function SetDataEmpresa(nombre,celular,email,deviceid,id_barra_arriba,ruc,direccion,desde_login)
 			//SetDataEmpresa(datosaux[1],datosaux[3],quien,iddevice,datosaux[2],datosaux[4],datosaux[5],true);
 		}
