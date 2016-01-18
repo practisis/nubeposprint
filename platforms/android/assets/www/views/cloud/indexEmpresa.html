@@ -70,12 +70,29 @@
 						</tr>
 						<tr>
 							<th>
+								No. Serie: 
+							</th>
+							<td>
+								<input type='text' id='serie' placeholder='Serie' class='inputs'/>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								No. Establecimiento : 
+							</th>
+							<td>
+								<input type='text' id='establecimiento' placeholder='Establecimiento' class='inputs'/>
+							</td>
+						</tr>
+						<tr>
+							<th>
 								Dirección : 
 							</th>
 							<td>
 								<textarea id='dir' placeholder='Dirección...' class='inputs'></textarea>
 							</td>
 						</tr>
+						<tr>
 						<tr>
 							<td colspan='2' align='center' style='text-align:center;'>
 								<center>
@@ -110,6 +127,8 @@
 		var tel = $('#tel').val();
 		var email = $('#email').val();
 		var dir = $('#dir').val();
+		var serie = $('#serie').val();
+		var establecimiento = $('#establecimiento').val();
 		
 		if(nombreEsta == '' ){
 			$('#nombreEsta').effect('highlight');
@@ -141,7 +160,7 @@
 		}else{
 			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 			db.transaction(function (tx){
-				tx.executeSql('update CONFIG set nombre = "'+nombreEsta+'" , razon = "'+razon+'", ruc = '+ruc+' , telefono = '+tel+', email = "'+email+'", direccion = "'+dir+'",sincronizar="true"');
+				tx.executeSql('update CONFIG set nombre = "'+nombreEsta+'" , razon = "'+razon+'", ruc = '+ruc+' , telefono = '+tel+', email = "'+email+'", direccion = "'+dir+'",sincronizar="true",serie="'+serie+'",establecimiento="'+establecimiento+'"');
 				$('#msjOk').html('Informacion actualizada con Éxito');
 				$('#msjOk').fadeIn('slow');
 				$('#campos').css('display','none');
@@ -159,6 +178,8 @@
 		var tel = $('#tel').val();
 		var email = $('#email').val();
 		var dir = $('#dir').val();
+		var serie = $('#serie').val();
+		var establecimiento = $('#establecimiento').val();
 		
 		if(nombreEsta == '' ){
 			$('#nombreEsta').effect('highlight');
@@ -190,7 +211,7 @@
 		}else{
 			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 			db.transaction(function (tx){
-				tx.executeSql('INSERT INTO CONFIG(nombre , razon , ruc , telefono , email , direccion) VALUES("'+nombreEsta+'" , "'+razon+'" , '+ruc+' , '+tel+' , "'+email+'" , "'+dir+'")');
+				tx.executeSql('INSERT INTO CONFIG(nombre , razon , ruc , telefono , email , direccion,serie,establecimiento) VALUES("'+nombreEsta+'" , "'+razon+'" , '+ruc+' , '+tel+' , "'+email+'" , "'+dir+'" , "'+serie+'" , "'+establecimiento+'")');
 				$('#msjOk').html('Informacion Ingresada con Éxito');
 				$('#msjOk').fadeIn('slow');
 				$('#campos').css('display','none');
@@ -213,6 +234,8 @@
 						var telefono = row.telefono;
 						var email = row.email;
 						var direccion = row.direccion;
+						var serie = row.serie;
+						var establecimiento = row.establecimiento;
 						
 						$('#nombreEsta').val(nombre);
 						$('#razon').val(razon);
@@ -220,7 +243,10 @@
 						$('#tel').val(telefono);
 						$('#email').val(email);
 						$('#dir').val(direccion);
+						$('#serie').val(serie);
+						$('#establecimiento').val(establecimiento);
 					}
+					
 					$('#actualiza').css('display','block');
 					$('#graba').css('display','none');
 				}else{
